@@ -1,3 +1,4 @@
+# File: MultipleFiles/menussh.sh
 #!/bin/bash
 
 # Source file utilitas global
@@ -55,19 +56,9 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${SECTION_DIVIDER}"
           echo -e "${YELLOW}  Alamat IP:     ${LIGHT_CYAN}$IP${RESET}"
           echo -e "${YELLOW}  Hos:           ${LIGHT_CYAN}$DOMAIN${RESET}"
-          echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22${RESET}" # Tambah port SSH standard
           echo -e "${YELLOW}  SSL/TLS:       ${LIGHT_CYAN}444, 777${RESET}"
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
           echo -e "${SECTION_DIVIDER}"
-          
-          # --- START: Tambahan untuk HTTP Proxy SSH ---
-          echo -e "${PURPLE}${BOLD}  Maklumat HTTP Proxy SSH:${RESET}"
-          echo -e "${YELLOW}  Port HTTP Proxy: ${LIGHT_CYAN}8880${RESET}"
-          echo -e "${YELLOW}  Contoh Payload:  ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
-          echo -e "${YELLOW}  Contoh Proxy Host: ${LIGHT_CYAN}$DOMAIN:8880${RESET} atau ${LIGHT_CYAN}$IP:8880${RESET}"
-          echo -e "${SECTION_DIVIDER}"
-          # --- END: Tambahan untuk HTTP Proxy SSH ---
-
           show_slowdns_info
         else
           echo -e "${RED}✘ Ralat: Gagal mencipta pengguna SSH.${RESET}"
@@ -231,7 +222,7 @@ END
         done
         echo -ne "${WHITE}Masukkan nombor [1-${#OVPN_USERS[@]}]: ${RESET}"
         read OVPN_NUM
-        if [[ "$OVPN_NUM =~ ^[0-9]+$ ]] && (( OVPN_NUM >= 1 && OVPN_NUM <= ${#OVPN_USERS[@]} )); then
+        if [[ "$OVPN_NUM" =~ ^[0-9]+$ ]] && (( OVPN_NUM >= 1 && OVPN_NUM <= ${#OVPN_USERS[@]} )); then
           OVPN_USER="${OVPN_USERS[$((OVPN_NUM-1))]}"
           loading_animation "Memadam pengguna OpenVPN"
           if userdel -r "$OVPN_USER" 2>/dev/null; then
