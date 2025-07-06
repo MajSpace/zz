@@ -1,4 +1,3 @@
-# File: MultipleFiles/utils.sh
 #!/bin/bash
 
 # Palet Warna yang Diperkaya
@@ -19,6 +18,7 @@ RESET="\033[0m"
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
+HYSTERIA_CONFIG="/etc/hysteria/hysteria2.yaml"
 DOMAIN=$(cat /etc/xray/domain.conf 2>/dev/null || echo "Tidak Tersedia")
 IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
@@ -90,6 +90,13 @@ list_openvpn_users() {
   fi
 }
 
+# Senarai pengguna Hysteria2
+list_hysteria_users() {
+  if [[ -f "/var/log/hysteria-users.log" ]]; then
+    awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}' /var/log/hysteria-users.log
+  fi
+}
+
 # Sahkan nama pengguna (tidak kosong dan tidak berulang)
 validate_username() {
   local username=$1
@@ -121,6 +128,12 @@ validate_username() {
         return 1
       fi
       ;;
+    "HYSTERIA")
+      if grep -q "^$username|" /var/log/hysteria-users.log 2>/dev/null; then
+        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk Hysteria2.${RESET}"
+        return 1
+      fi
+      ;;
   esac
   return 0
 }
@@ -133,6 +146,12 @@ validate_days() {
     return 1
   fi
   return 0
+}
+
+# Generate random password
+generate_password() {
+  local length=${1:-12}
+  openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
 }
 
 # Papar maklumat SlowDNS
@@ -152,5 +171,15 @@ show_openvpn_ports() {
   echo -e "${YELLOW}  TCP HTTPS Bypass:  ${LIGHT_CYAN}1443${RESET}"
   echo -e "${YELLOW}  UDP DNS Bypass:    ${LIGHT_CYAN}2053${RESET}"
   echo -e "${YELLOW}  TCP HTTP Bypass:   ${LIGHT_CYAN}8080${RESET}"
+  echo -e "${SHORT_BORDER}"
+}
+
+# Papar maklumat Hysteria2
+show_hysteria_info() {
+  echo -e "${PURPLE}${BOLD}Maklumat Perkhidmatan Hysteria2:${RESET}"
+  echo -e "${YELLOW}  Port:              ${LIGHT_CYAN}8443 (UDP)${RESET}"
+  echo -e "${YELLOW}  Protocol:          ${LIGHT_CYAN}QUIC/HTTP3${RESET}"
+  echo -e "${YELLOW}  Bandwidth:         ${LIGHT_CYAN}Unlimited${RESET}"
+  echo -e "${YELLOW}  Congestion Control:${LIGHT_CYAN}BBR${RESET}"
   echo -e "${SHORT_BORDER}"
 }
