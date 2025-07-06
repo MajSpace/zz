@@ -19,6 +19,7 @@ RESET="\033[0m"
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
+HYSTERIA_CONFIG="/etc/hysteria/hysteria2.yaml" # Tambahkan path konfigurasi Hysteria2
 DOMAIN=$(cat /etc/xray/domain.conf 2>/dev/null || echo "Tidak Tersedia")
 IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
@@ -90,6 +91,13 @@ list_openvpn_users() {
   fi
 }
 
+# Senarai pengguna Hysteria2
+list_hysteria_users() {
+  if [[ -f "/var/log/hysteria-users.log" ]]; then
+    awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}' /var/log/hysteria-users.log | sort | uniq
+  fi
+}
+
 # Sahkan nama pengguna (tidak kosong dan tidak berulang)
 validate_username() {
   local username=$1
@@ -118,6 +126,12 @@ validate_username() {
     "OPENVPN")
       if id "$username" >/dev/null 2>&1; then
         echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk OpenVPN.${RESET}"
+        return 1
+      fi
+      ;;
+    "HYSTERIA") # Tambahkan validasi untuk Hysteria2
+      if grep -q "^$username |" /var/log/hysteria-users.log 2>/dev/null; then
+        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk Hysteria2.${RESET}"
         return 1
       fi
       ;;
@@ -152,5 +166,22 @@ show_openvpn_ports() {
   echo -e "${YELLOW}  TCP HTTPS Bypass:  ${LIGHT_CYAN}1443${RESET}"
   echo -e "${YELLOW}  UDP DNS Bypass:    ${LIGHT_CYAN}2053${RESET}"
   echo -e "${YELLOW}  TCP HTTP Bypass:   ${LIGHT_CYAN}8080${RESET}"
+  echo -e "${SHORT_BORDER}"
+}
+
+# Fungsi untuk menghasilkan password acak
+generate_password() {
+  local length=${1:-12} # Default length is 12 if not provided
+  tr -dc A-Za-z0-9_@#%^&*()_+{}[]<>? | head -c "$length" /dev/urandom
+}
+
+# Fungsi untuk menampilkan informasi Hysteria2
+show_hysteria_info() {
+  echo -e "${PURPLE}${BOLD}Maklumat Perkhidmatan Hysteria2:${RESET}"
+  echo -e "${YELLOW}  Port:              ${LIGHT_CYAN}8443 (UDP)${RESET}"
+  echo -e "${YELLOW}  Domain:            ${LIGHT_CYAN}$DOMAIN${RESET}"
+  echo -e "${YELLOW}  Password Global:   ${LIGHT_CYAN}$(grep 'password:' $HYSTERIA_CONFIG | awk '{print $2}' | tr -d '"')${RESET}"
+  echo -e "${YELLOW}  Protokol:          ${LIGHT_CYAN}QUIC/HTTP3${RESET}"
+  echo -e "${YELLOW}  Obfuscation:       ${LIGHT_CYAN}salamander (default)${RESET}"
   echo -e "${SHORT_BORDER}"
 }
