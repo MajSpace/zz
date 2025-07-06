@@ -62,7 +62,7 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
           echo -e "${SECTION_DIVIDER}"
           echo -e "${WHITE}SSH Connect From Custom Proxy (cdn-dropbear):${RESET}"
-          echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:2081${RESET}"
+          echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}"
           echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
           echo -e "${SECTION_DIVIDER}"
           show_slowdns_info
