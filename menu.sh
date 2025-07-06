@@ -18,10 +18,11 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat HTTP Proxy SSH${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-8]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}"
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
@@ -72,6 +73,15 @@ main_menu() {
         echo -e "${YELLOW}  Memory Usage: ${LIGHT_CYAN}$(free -h | awk 'NR==2{printf "%.1f%%", $3*100/$2}')${RESET}"
         echo -e "${YELLOW}  Disk Usage:   ${LIGHT_CYAN}$(df -h / | awk 'NR==2{print $5}')${RESET}"
         echo -e "${FULL_BORDER}"
+        
+        # Tambahan status HTTP Proxy SSH
+        echo -e "${WHITE}${BOLD}Status HTTP Proxy SSH:${RESET}"
+        if netstat -tlnp | grep -q ":8880 "; then
+          echo -e "${YELLOW}  HTTP Proxy SSH (Port 8880): ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Aktif${RESET}"
+        else
+          echo -e "${YELLOW}  HTTP Proxy SSH (Port 8880): ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
+        fi
+        echo -e "${FULL_BORDER}"
         pause
         ;;
       6) # Papar Port OpenVPN
@@ -95,6 +105,56 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
+      9) # Maklumat HTTP Proxy SSH
+        title_banner
+        echo -e "${PURPLE}${BOLD}Maklumat HTTP Proxy SSH${RESET}"
+        echo -e "${FULL_BORDER}"
+        echo -e "${WHITE}${BOLD}Konfigurasi HTTP Proxy SSH:${RESET}"
+        echo -e "${YELLOW}  Server:        ${LIGHT_CYAN}$DOMAIN${RESET}"
+        echo -e "${YELLOW}  Port HTTP:     ${LIGHT_CYAN}8880${RESET}"
+        echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22${RESET}"
+        echo -e "${YELLOW}  Protocol:      ${LIGHT_CYAN}HTTP Proxy to SSH${RESET}"
+        echo -e "${YELLOW}  Method:        ${LIGHT_CYAN}CONNECT${RESET}"
+        echo -e "${SHORT_BORDER}"
+        echo -e "${WHITE}${BOLD}Cara Penggunaan:${RESET}"
+        echo -e "${YELLOW}  1. ${WHITE}Buka aplikasi HTTP Injector atau sejenisnya${RESET}"
+        echo -e "${YELLOW}  2. ${WHITE}Tetapkan Proxy HTTP: ${LIGHT_CYAN}$DOMAIN:8880${RESET}"
+        echo -e "${YELLOW}  3. ${WHITE}Tetapkan SSH Host: ${LIGHT_CYAN}$DOMAIN:22${RESET}"
+        echo -e "${YELLOW}  4. ${WHITE}Gunakan username dan password SSH yang sah${RESET}"
+        echo -e "${SHORT_BORDER}"
+        echo -e "${WHITE}${BOLD}Contoh Konfigurasi HTTP Injector:${RESET}"
+        echo -e "${YELLOW}  SSH Host:      ${LIGHT_CYAN}$DOMAIN${RESET}"
+        echo -e "${YELLOW}  SSH Port:      ${LIGHT_CYAN}22${RESET}"
+        echo -e "${YELLOW}  Proxy Type:    ${LIGHT_CYAN}HTTP${RESET}"
+        echo -e "${YELLOW}  Proxy Server:  ${LIGHT_CYAN}$DOMAIN${RESET}"
+        echo -e "${YELLOW}  Proxy Port:    ${LIGHT_CYAN}8880${RESET}"
+        echo -e "${YELLOW}  Tunnel Type:   ${LIGHT_CYAN}HTTP Proxy${RESET}"
+        echo -e "${SHORT_BORDER}"
+        echo -e "${WHITE}${BOLD}Status Perkhidmatan:${RESET}"
+        if systemctl is-active nginx >/dev/null 2>&1; then
+          echo -e "${YELLOW}  Nginx:         ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Aktif${RESET}"
+        else
+          echo -e "${YELLOW}  Nginx:         ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
+        fi
+        if netstat -tlnp | grep -q ":8880 "; then
+          echo -e "${YELLOW}  Port 8880:     ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Terbuka${RESET}"
+        else
+          echo -e "${YELLOW}  Port 8880:     ${RED}●${RESET} ${RED}Tertutup${RESET}"
+        fi
+        if systemctl is-active ssh >/dev/null 2>&1; then
+          echo -e "${YELLOW}  SSH Service:   ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Aktif${RESET}"
+        else
+          echo -e "${YELLOW}  SSH Service:   ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
+        fi
+        echo -e "${FULL_BORDER}"
+        echo -e "${WHITE}${BOLD}Troubleshooting:${RESET}"
+        echo -e "${YELLOW}  • ${WHITE}Jika port 8880 tertutup, restart nginx: ${LIGHT_CYAN}systemctl restart nginx${RESET}"
+        echo -e "${YELLOW}  • ${WHITE}Periksa konfigurasi: ${LIGHT_CYAN}/etc/nginx/conf.d/ssh_http_proxy.conf${RESET}"
+        echo -e "${YELLOW}  • ${WHITE}Periksa log nginx: ${LIGHT_CYAN}tail -f /var/log/nginx/error.log${RESET}"
+        echo -e "${YELLOW}  • ${WHITE}Test koneksi: ${LIGHT_CYAN}curl -I http://$DOMAIN:8880${RESET}"
+        echo -e "${FULL_BORDER}"
+        pause
+        ;;
       0) # Keluar
         clear
         echo -e "${BRIGHT_GREEN}Terima kasih kerana menggunakan Sistem Pengurusan VPN!${RESET}"
@@ -102,7 +162,7 @@ main_menu() {
         exit 0
         ;;
       *)
-        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 8.${RESET}"
+        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 9.${RESET}"
         pause
         ;;
     esac
