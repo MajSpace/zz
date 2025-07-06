@@ -18,11 +18,10 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat HTTP Proxy SSH${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [0-8]: ${RESET}"
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
@@ -94,16 +93,6 @@ main_menu() {
         echo -e "${YELLOW}  Encryption: ${LIGHT_CYAN}AES-256-GCM${RESET}"
         echo -e "${YELLOW}  Obfuscation:${LIGHT_CYAN}salamander${RESET}"
         echo -e "${SHORT_BORDER}"
-        pause
-        ;;
-     9) # Maklumat HTTP Proxy SSH
-        title_banner
-        echo -e "${PURPLE}${BOLD}${UNDERLINE}Maklumat HTTP Proxy SSH${RESET}"
-        echo -e "${FULL_BORDER}"
-        echo -e "${YELLOW}  Port:         ${LIGHT_CYAN}8880${RESET}"
-        echo -e "${YELLOW}  Payload Contoh:${RESET}"
-        echo -e "${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
-        echo -e "${FULL_BORDER}"
         pause
         ;;
       0) # Keluar

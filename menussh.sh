@@ -18,9 +18,11 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
     echo -e "${YELLOW}  5. ${WHITE}Semak Pengguna OpenVPN${RESET}"
     echo -e "${YELLOW}  6. ${WHITE}Padam Pengguna OpenVPN${RESET}"
     echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW}  7. ${WHITE}Kembali ke Menu Utama${RESET}"
+    echo -e "${YELLOW}  7. ${WHITE}Cipta Pengguna SSH HTTP Proxy${RESET}"
+    echo -e "${SECTION_DIVIDER}"
+    echo -e "${YELLOW}  8. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [1-7]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [1-8]: ${RESET}"
     read opt
     case $opt in
       1) # Cipta Pengguna SSH
@@ -58,7 +60,6 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  Hos:           ${LIGHT_CYAN}$DOMAIN${RESET}"
           echo -e "${YELLOW}  SSL/TLS:       ${LIGHT_CYAN}444, 777${RESET}"
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
-          echo -e "${YELLOW}  HTTP Proxy SSH:${LIGHT_CYAN}8880${RESET}"
           echo -e "${SECTION_DIVIDER}"
           show_slowdns_info
         else
@@ -78,7 +79,6 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           for user in "${SSH_USERS[@]}"; do
             exp_date=$(chage -l "$user" | grep "Account expires" | awk -F": " '{print $2}')
             echo -e "${YELLOW}  - ${WHITE}$user ${GRAY}(Tamat Tempoh: $exp_date)${RESET}"
-            echo -e "${YELLOW}    Port HTTP Proxy SSH: ${LIGHT_CYAN}8880${RESET}"
           done
         fi
         echo -e "${FULL_BORDER}"
@@ -241,7 +241,52 @@ END
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      7) # Kembali ke Menu Utama
+     7) # Cipta Pengguna SSH HTTP Proxy
+        title_banner
+        echo -e "${PURPLE}${BOLD}Cipta Pengguna SSH HTTP Proxy${RESET}"
+        echo -e "${FULL_BORDER}"
+        read -rp "Masukkan nama pengguna SSH HTTP Proxy: " SSH_HTTP_PROXY_USER
+        if ! validate_username "$SSH_HTTP_PROXY_USER" "SSH"; then
+            pause
+            continue
+        fi
+        read -rp "Masukkan kata laluan SSH HTTP Proxy: " SSH_HTTP_PROXY_PASS
+        if [[ -z "$SSH_HTTP_PROXY_PASS" ]]; then
+            echo -e "${RED}\u2718 Ralat: Kata laluan tidak boleh kosong.${RESET}"
+            pause
+            continue
+        fi
+        read -rp "Berapa lama sah? (hari): " SSH_HTTP_PROXY_DAYS
+        if ! validate_days "$SSH_HTTP_PROXY_DAYS"; then
+            pause
+            continue
+        fi
+
+        loading_animation "Mencipta pengguna SSH HTTP Proxy"
+        if useradd -e $(date -d "$SSH_HTTP_PROXY_DAYS days" +"%Y-%m-%d") -m -s /bin/bash "$SSH_HTTP_PROXY_USER" 2>/dev/null; then
+            echo "$SSH_HTTP_PROXY_USER:$SSH_HTTP_PROXY_PASS" | chpasswd
+            exp_date=$(chage -l "$SSH_HTTP_PROXY_USER" | grep "Account expires" | awk -F': ' '{print $2}')
+            echo "$SSH_HTTP_PROXY_USER | $SSH_HTTP_PROXY_PASS | Exp: $exp_date" >> /var/log/ssh-users.log
+            echo -e "${BRIGHT_GREEN}\u2714 Pengguna SSH HTTP Proxy berjaya dicipta.${RESET}"
+            echo -e "${SECTION_DIVIDER}"
+            echo -e "${YELLOW}  Nama Pengguna: ${LIGHT_CYAN}$SSH_HTTP_PROXY_USER${RESET}"
+            echo -e "${YELLOW}  Kata Laluan:   ${LIGHT_CYAN}$SSH_HTTP_PROXY_PASS${RESET}"
+            echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
+            echo -e "${SECTION_DIVIDER}"
+            echo -e "${YELLOW}  Alamat IP:     ${LIGHT_CYAN}$IP${RESET}"
+            echo -e "${YELLOW}  Host:          ${LIGHT_CYAN}$DOMAIN${RESET}"
+            echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22${RESET}"
+            echo -e "${YELLOW}  Port HTTP Proxy: ${LIGHT_CYAN}8880${RESET}" # Tampilkan port HTTP Proxy
+            echo -e "${YELLOW}  Payload (Contoh):${RESET}"
+            echo -e "${LIGHT_CYAN}    GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
+            echo -e "${YELLOW}  Proxy Host (Contoh): ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}" # Tampilkan contoh proxy host
+            echo -e "${SECTION_DIVIDER}"
+        else
+            echo -e "${RED}\u2718 Ralat: Gagal mencipta pengguna SSH HTTP Proxy.${RESET}"
+        fi
+        pause
+        ;;
+     8) # Kembali ke Menu Utama (sesuaikan nomor ini)
         return
         ;;
       *)
