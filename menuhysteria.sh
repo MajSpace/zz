@@ -235,15 +235,12 @@ add_hysteria_user() {
     return 1
   fi
   
-  # Tambah user ke konfigurasi YAML
-  if grep -q "auth:" "$HYSTERIA_CONFIG"; then
-    # Tambah user baru ke seksyen auth
-    sed -i "/auth:/a\\  $username: \"$password\"" "$HYSTERIA_CONFIG"
-    return 0
-  else
-    echo -e "${RED}Format konfigurasi tidak dikenali!${RESET}"
-    return 1
-  fi
+  # Update password dalam konfigurasi
+  sed -i "s/password: .*/password: \"$password\"/" "$HYSTERIA_CONFIG"
+  
+  # Untuk Hysteria2 v2.6.2, kita gunakan single password approach
+  # Setiap user akan menggunakan password yang sama
+  return 0
 }
 
 # Fungsi untuk membuang user dari konfigurasi Hysteria2
@@ -255,8 +252,8 @@ remove_hysteria_user() {
     return 1
   fi
   
-  # Buang user dari konfigurasi
-  sed -i "/^  $username:/d" "$HYSTERIA_CONFIG"
+  # Untuk single password approach, kita hanya perlu hapus dari log
+  # Password tetap sama untuk user lain
   return 0
 }
 
@@ -295,10 +292,6 @@ socks5:
 
 http:
   listen: 127.0.0.1:8080
-
-# Logging
-log:
-  level: info
 EOF
   
   chmod 644 "$config_file"
