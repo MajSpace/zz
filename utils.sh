@@ -154,17 +154,6 @@ generate_password() {
   openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
 }
 
-# Tambahkan fungsi baru untuk menampilkan informasi SSH
-show_ssh_info() {
-  echo -e "${PURPLE}${BOLD}Port Perkhidmatan SSH:${RESET}"
-  echo -e "${YELLOW}  OpenSSH:         ${LIGHT_CYAN}22${RESET}"
-  echo -e "${YELLOW}  Dropbear:        ${LIGHT_CYAN}109, 143${RESET}"
-  echo -e "${YELLOW}  Stunnel4:        ${LIGHT_CYAN}444, 777, 992${RESET}"
-  echo -e "${YELLOW}  BadVPN-UDPGW:    ${LIGHT_CYAN}7100-7900 UDP${RESET}"
-  echo -e "${YELLOW}  HTTP Proxy SSH:  ${LIGHT_CYAN}8880 TCP${RESET}" # BARIS BARU
-  echo -e "${SHORT_BORDER}"
-}
-
 # Papar maklumat SlowDNS
 show_slowdns_info() {
   echo -e "${WHITE}Maklumat SlowDNS:${RESET}"
