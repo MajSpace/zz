@@ -18,7 +18,7 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH over HTTP Proxy${RESET}" # Opsi baru
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH over Custom Proxy${RESET}" # Opsi baru, nama diubah
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
@@ -42,7 +42,7 @@ main_menu() {
           "stunnel4:Stunnel4"
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
-          "squid:Squid Proxy" # Tambahkan Squid
+          "cdn-dropbear:Custom Python Proxy (cdn-dropbear)" # Ganti Squid
           "server-sldns:SlowDNS Server"
           "client-sldns:SlowDNS Client"
           "hysteria2:Hysteria2"
@@ -59,11 +59,11 @@ main_menu() {
           if [[ "$status" == "active" ]]; then
             echo -e "${YELLOW}  $service_desc: ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Aktif${RESET}"
           elif [[ "$status" == "inactive" ]]; then
-            echo -e "${YELLOW}  $service_desc: ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
+            echo -e "${RED}  $service_desc: ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
           elif [[ "$status" == "failed" ]]; then
-            echo -e "${YELLOW}  $service_desc: ${RED}●${RESET} ${RED}Gagal${RESET}"
+            echo -e "${RED}  $service_desc: ${RED}●${RESET} ${RED}Gagal${RESET}"
           else
-            echo -e "${YELLOW}  $service_desc: ${GRAY}●${RESET} ${GRAY}$status${RESET}"
+            echo -e "${GRAY}  $service_desc: ${GRAY}●${RESET} ${GRAY}$status${RESET}"
           fi
         done
         echo -e "${FULL_BORDER}"
@@ -97,16 +97,16 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
-      9) # Maklumat SSH over HTTP Proxy (Opsi baru)
+      9) # Maklumat SSH over Custom Proxy (Opsi baru)
         title_banner
-        echo -e "${PURPLE}${BOLD}Maklumat SSH over HTTP Proxy${RESET}"
+        echo -e "${PURPLE}${BOLD}Maklumat SSH over Custom Proxy (cdn-dropbear)${RESET}"
         echo -e "${FULL_BORDER}"
-        echo -e "${WHITE}Squid Proxy:${RESET}"
-        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}8880${RESET}"
-        echo -e "${YELLOW}  Status:        $(systemctl is-active squid 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
+        echo -e "${WHITE}Custom Proxy (cdn-dropbear):${RESET}"
+        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}2081${RESET}"
+        echo -e "${YELLOW}  Status:        $(systemctl is-active cdn-dropbear 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
         echo -e "${SECTION_DIVIDER}"
         echo -e "${WHITE}Konfigurasi Klien (HTTP Injector/Sejenisnya):${RESET}"
-        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}"
+        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:2081${RESET}"
         echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
         echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22, 109, 143, 444, 777, 992${RESET}"
         echo -e "${FULL_BORDER}"
