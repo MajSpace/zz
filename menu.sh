@@ -18,10 +18,11 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH over HTTP Proxy${RESET}" # Opsi baru
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-8]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}" # Rentang opsi diperbarui
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
@@ -41,6 +42,7 @@ main_menu() {
           "stunnel4:Stunnel4"
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
+          "squid:Squid Proxy" # Tambahkan Squid
           "server-sldns:SlowDNS Server"
           "client-sldns:SlowDNS Client"
           "hysteria2:Hysteria2"
@@ -95,6 +97,21 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
+      9) # Maklumat SSH over HTTP Proxy (Opsi baru)
+        title_banner
+        echo -e "${PURPLE}${BOLD}Maklumat SSH over HTTP Proxy${RESET}"
+        echo -e "${FULL_BORDER}"
+        echo -e "${WHITE}Squid Proxy:${RESET}"
+        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}8880${RESET}"
+        echo -e "${YELLOW}  Status:        $(systemctl is-active squid 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
+        echo -e "${SECTION_DIVIDER}"
+        echo -e "${WHITE}Konfigurasi Klien (HTTP Injector/Sejenisnya):${RESET}"
+        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}"
+        echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
+        echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22, 109, 143, 444, 777, 992${RESET}"
+        echo -e "${FULL_BORDER}"
+        pause
+        ;;
       0) # Keluar
         clear
         echo -e "${BRIGHT_GREEN}Terima kasih kerana menggunakan Sistem Pengurusan VPN!${RESET}"
@@ -102,7 +119,7 @@ main_menu() {
         exit 0
         ;;
       *)
-        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 8.${RESET}"
+        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 9.${RESET}" # Rentang opsi diperbarui
         pause
         ;;
     esac
