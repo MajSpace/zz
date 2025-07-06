@@ -1,4 +1,3 @@
-# File: MultipleFiles/menussh.sh
 #!/bin/bash
 
 # Source file utilitas global
@@ -53,17 +52,14 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  Nama Pengguna: ${LIGHT_CYAN}$SSH_USER${RESET}"
           echo -e "${YELLOW}  Kata Laluan:   ${LIGHT_CYAN}$SSH_PASS${RESET}"
           echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
-          echo -e "${SECTION_DIVIDER}"
           echo -e "${YELLOW}  Alamat IP:     ${LIGHT_CYAN}$IP${RESET}"
           echo -e "${YELLOW}  Hos:           ${LIGHT_CYAN}$DOMAIN${RESET}"
           echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22${RESET}"
           echo -e "${YELLOW}  Dropbear:      ${LIGHT_CYAN}109, 143${RESET}"
           echo -e "${YELLOW}  Stunnel/TLS:   ${LIGHT_CYAN}444, 777, 992${RESET}"
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
-          echo -e "${SECTION_DIVIDER}"
-          echo -e "${WHITE}SSH Connect From Custom Proxy (cdn-dropbear):${RESET}"
-          echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}"
-          echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
+          echo -e "${YELLOW}  Custom Proxy (cdn-dropbear): ${LIGHT_CYAN}2081${RESET}"
+          echo -e "${YELLOW}  Custom Proxy (cdn-openssh): ${LIGHT_CYAN}2085${RESET}"
           echo -e "${SECTION_DIVIDER}"
           show_slowdns_info
         else
@@ -183,7 +179,6 @@ END
           echo -e "${YELLOW}  Nama Pengguna: ${LIGHT_CYAN}$OVPN_USER${RESET}"
           echo -e "${YELLOW}  Kata Laluan:   ${LIGHT_CYAN}$OVPN_PASS${RESET}"
           echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
-          show_openvpn_ports
           echo -e "${WHITE}Muat Turun Konfigurasi OVPN:${RESET}"
           echo -e "${YELLOW}  UDP 1194: ${LIGHT_CYAN}http://$IP/client-${OVPN_USER}-udp1194.ovpn${RESET}"
           echo -e "${YELLOW}  TCP 1443: ${LIGHT_CYAN}http://$IP/client-${OVPN_USER}-tcp1443.ovpn${RESET}"

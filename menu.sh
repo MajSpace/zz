@@ -42,7 +42,8 @@ main_menu() {
           "stunnel4:Stunnel4"
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
-          "cdn-dropbear:Custom Python Proxy (cdn-dropbear)" # Ganti Squid
+          "cdn-dropbear:Custom Python Proxy (cdn-dropbear)"
+          "cdn-openssh:Custom Python Proxy (cdn-openssh)" # Tambahkan cdn-openssh
           "server-sldns:SlowDNS Server"
           "client-sldns:SlowDNS Client"
           "hysteria2:Hysteria2"
@@ -99,14 +100,18 @@ main_menu() {
         ;;
       9) # Maklumat SSH over Custom Proxy (Opsi baru)
         title_banner
-        echo -e "${PURPLE}${BOLD}Maklumat SSH over Custom Proxy (cdn-dropbear)${RESET}"
+        echo -e "${PURPLE}${BOLD}Maklumat SSH over Custom Proxy${RESET}"
         echo -e "${FULL_BORDER}"
         echo -e "${WHITE}Custom Proxy (cdn-dropbear):${RESET}"
-        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}8880${RESET}"
+        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}2081${RESET}"
         echo -e "${YELLOW}  Status:        $(systemctl is-active cdn-dropbear 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
         echo -e "${SECTION_DIVIDER}"
+        echo -e "${WHITE}Custom Proxy (cdn-openssh):${RESET}"
+        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}2085${RESET}"
+        echo -e "${YELLOW}  Status:        $(systemctl is-active cdn-openssh 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
+        echo -e "${SECTION_DIVIDER}"
         echo -e "${WHITE}Konfigurasi Klien (HTTP Injector/Sejenisnya):${RESET}"
-        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:8880${RESET}"
+        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:[2081/2085]${RESET}"
         echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
         echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22, 109, 143, 444, 777, 992${RESET}"
         echo -e "${FULL_BORDER}"
