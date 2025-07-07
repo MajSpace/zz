@@ -61,11 +61,11 @@ do_backup() {
 ━━━━━━━━━━━━━━━━━━━━
 🖥 *Hostname:* \`$HOST\`
 📅 *Tarikh:* \`$TANGGAL\`
-📝 *Nama Fail:* \`$FILE_NAME\`
+📝 *Path Fail:* \`/root/$FILE_NAME\`
 
 ✅ *Status:* Berjaya disimpan & dihantar melalui Telegram
 
-_Created by Auto Backup Script_"
+_Backup by Maj Space_"
 
   curl -s -F chat_id="$TELEGRAM_CHAT_ID" \
           -F document=@"$BACKUP_FILE" \
