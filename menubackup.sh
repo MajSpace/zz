@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Source utilitas global jika ada
+# Source utiliti global jika ada
 source /usr/local/bin/utils.sh 2>/dev/null
 
 BACKUP_DIR="/root/vpn-backup"
@@ -9,20 +9,22 @@ BACKUP_FILE="/root/vpn-backup-$TGL.tar.gz"
 LOG="/root/backup_restore.log"
 CONFIG_FILE="/etc/backup.conf"
 
-# Baca config (token/chatid)
+# Baca konfigurasi (token/chatid)
 if [[ -f "$CONFIG_FILE" ]]; then
   source "$CONFIG_FILE"
 fi
 
 do_backup() {
   if [[ -z "$TELEGRAM_BOT_TOKEN" || -z "$TELEGRAM_CHAT_ID" ]]; then
-    echo -e "${RED}✘ Bot token/chat id belum diisi! Sila set dahulu di menu ini.${RESET}"
+    echo -e "${RED}✘ Token bot atau Chat ID Telegram belum disediakan! Sila tetapkan dahulu melalui menu ini.${RESET}"
     pause
     return
   fi
-  echo -e "${YELLOW}Membuat backup ke $BACKUP_FILE ...${RESET}"
+
+  echo -e "${YELLOW}Sedang membuat salinan sandaran ke $BACKUP_FILE ...${RESET}"
   rm -rf "$BACKUP_DIR"
   mkdir -p "$BACKUP_DIR"
+
   cp -r /etc/xray "$BACKUP_DIR/" 2>/dev/null
   cp -r /usr/local/etc/xray "$BACKUP_DIR/" 2>/dev/null
   cp -r /etc/openvpn "$BACKUP_DIR/" 2>/dev/null
@@ -44,28 +46,49 @@ do_backup() {
   cp /etc/shadow "$BACKUP_DIR/shadow"
   cp /etc/group "$BACKUP_DIR/group"
   cp /etc/gshadow "$BACKUP_DIR/gshadow"
+
   tar -czf "$BACKUP_FILE" -C "$BACKUP_DIR" .
-  echo -e "${GREEN}Backup selesai. File: $BACKUP_FILE${RESET}"
+  echo -e "${GREEN}✔ Salinan sandaran telah selesai. Fail: $BACKUP_FILE${RESET}"
   echo "$(date) BACKUP: $BACKUP_FILE" >> "$LOG"
   rm -rf "$BACKUP_DIR"
 
-  # Kirim ke Telegram
-  TEXT="Backup VPN $(hostname) $(date) Patch File: $BACKUP_FILE"
-  curl -s -F chat_id="$TELEGRAM_CHAT_ID" -F document=@"$BACKUP_FILE" -F caption="$TEXT" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument" >/dev/null
-  echo -e "${BRIGHT_GREEN}Backup telah dihantar ke Telegram.${RESET}"
+  # Hantar ke Telegram dengan gaya profesional
+  HOST=$(hostname)
+  TANGGAL=$(date '+%d-%m-%Y %H:%M:%S')
+  FILE_NAME=$(basename "$BACKUP_FILE")
+
+  CAPTION="📦 *Maklumat Salinan Sandaran VPN*
+━━━━━━━━━━━━━━━━━━━━
+🖥 *Hostname:* \`$HOST\`
+📅 *Tarikh:* \`$TANGGAL\`
+📝 *Nama Fail:* \`$FILE_NAME\`
+
+✅ *Status:* Berjaya disimpan & dihantar melalui Telegram
+
+_Created by Auto Backup Script_"
+
+  curl -s -F chat_id="$TELEGRAM_CHAT_ID" \
+          -F document=@"$BACKUP_FILE" \
+          -F caption="$CAPTION" \
+          -F parse_mode="Markdown" \
+          "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument" >/dev/null
+
+  echo -e "${BRIGHT_GREEN}✔ Sandaran telah dihantar ke Telegram.${RESET}"
   pause
 }
 
 do_restore() {
-  read -rp "Masukkan path file backup (.tar.gz): " RESTORE_FILE
+  read -rp "Sila masukkan path fail sandaran (.tar.gz): " RESTORE_FILE
   if [[ ! -f "$RESTORE_FILE" ]]; then
-    echo -e "${RED}✘ File tidak ditemui!${RESET}"
+    echo -e "${RED}✘ Fail tidak ditemui! Sila semak semula.${RESET}"
     pause
     return
   fi
-  echo -e "${YELLOW}Memulihkan konfigurasi dari $RESTORE_FILE ...${RESET}"
+
+  echo -e "${YELLOW}Memulihkan konfigurasi daripada $RESTORE_FILE ...${RESET}"
   mkdir -p "$BACKUP_DIR"
   tar -xzf "$RESTORE_FILE" -C "$BACKUP_DIR"
+
   cp -r "$BACKUP_DIR/xray/"* /etc/xray/ 2>/dev/null
   cp -r "$BACKUP_DIR/xray/"* /usr/local/etc/xray/ 2>/dev/null
   cp -r "$BACKUP_DIR/openvpn/"* /etc/openvpn/ 2>/dev/null
@@ -87,8 +110,10 @@ do_restore() {
   cp "$BACKUP_DIR/shadow" /etc/shadow
   cp "$BACKUP_DIR/group" /etc/group
   cp "$BACKUP_DIR/gshadow" /etc/gshadow
+
   systemctl restart nginx xray openvpn@server-udp-1194 openvpn@server-tcp-443 openvpn@server-udp-53 openvpn@server-tcp-80 dropbear stunnel4 badvpn-udpgw hysteria2 client-sldns server-sldns ws-python-proxy
-  echo -e "${GREEN}Restore selesai.${RESET}"
+
+  echo -e "${GREEN}✔ Proses pemulihan selesai.${RESET}"
   echo "$(date) RESTORE: $RESTORE_FILE" >> "$LOG"
   rm -rf "$BACKUP_DIR"
   pause
@@ -99,7 +124,7 @@ do_config() {
   read -rp "Masukkan TELEGRAM_CHAT_ID: " CHATID
   echo "TELEGRAM_BOT_TOKEN=\"$TOKEN\"" > "$CONFIG_FILE"
   echo "TELEGRAM_CHAT_ID=\"$CHATID\"" >> "$CONFIG_FILE"
-  echo -e "${GREEN}Konfigurasi disimpan di $CONFIG_FILE.${RESET}"
+  echo -e "${GREEN}✔ Konfigurasi Telegram telah disimpan di $CONFIG_FILE.${RESET}"
   source "$CONFIG_FILE"
   pause
 }
@@ -110,21 +135,21 @@ backup_menu_ops() {
       source "$CONFIG_FILE"
     fi
     title_banner
-    echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Backup VPN${RESET}"
+    echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Sandaran VPN${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -e "${YELLOW}  1. ${WHITE}Backup Konfigurasi ke Telegram${RESET}"
-    echo -e "${YELLOW}  2. ${WHITE}Restore Konfigurasi VPN${RESET}"
-    echo -e "${YELLOW}  3. ${WHITE}Set Telegram Bot Token & Chat ID${RESET}"
+    echo -e "${YELLOW}  1. ${WHITE}Buat Sandaran & Hantar ke Telegram${RESET}"
+    echo -e "${YELLOW}  2. ${WHITE}Pulihkan Konfigurasi dari Sandaran${RESET}"
+    echo -e "${YELLOW}  3. ${WHITE}Tetapkan Bot Telegram & Chat ID${RESET}"
     echo -e "${YELLOW}  4. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [1-4]: ${RESET}"
+    echo -ne "${WHITE}Sila pilih [1-4]: ${RESET}"
     read opt
     case $opt in
       1) do_backup ;;
       2) do_restore ;;
       3) do_config ;;
       4) return ;;
-      *) echo -e "${RED}✘ Pilihan tidak sah. Pilih 1, 2, 3, atau 4.${RESET}"; pause ;;
+      *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih antara 1-4.${RESET}"; pause ;;
     esac
   done
 }
