@@ -7,29 +7,31 @@ source /usr/local/bin/utils.sh
 main_menu() {
   while true; do
     title_banner
-    echo -e "${PURPLE}${BOLD}${UNDERLINE}Menu Utama${RESET}"
+    echo -e "${PURPLE}${BOLD}           ${UNDERLINE}Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
     echo -e "${YELLOW}  1. ${WHITE}${BOLD}Pengurusan SSH & OpenVPN${RESET}"
     echo -e "${YELLOW}  2. ${WHITE}${BOLD}Pengurusan Xray VMess${RESET}"
     echo -e "${YELLOW}  3. ${WHITE}${BOLD}Pengurusan Xray VLESS${RESET}"
     echo -e "${YELLOW}  4. ${WHITE}${BOLD}Pengurusan Hysteria2${RESET}"
+    echo -e "${YELLOW}  5. ${WHITE}${BOLD}pengurusan Backup${RESET}"
     echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW}  5. ${WHITE}${BOLD}Semak Status Perkhidmatan${RESET}"
-    echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
-    echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
-    echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
+    echo -e "${YELLOW}  6. ${WHITE}${BOLD}Semak Status Perkhidmatan${RESET}"
+    echo -e "${YELLOW}  7. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
+    echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
+    echo -e "${YELLOW} 10. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [0-10]: ${RESET}"
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
       2) menuvmess ;; # Panggil skrip menuvmess.sh
       3) menuvless ;; # Panggil skrip menuvless.sh
       4) menuhysteria ;; # Panggil skrip menuhysteria.sh
-      5) # Semak Status Perkhidmatan
+      5) menubackup ;; # Panggil skrip backup.sh
+      6) # Semak Status Perkhidmatan
         title_banner
         echo -e "${PURPLE}${BOLD}Status Perkhidmatan:${RESET}"
         echo -e "${FULL_BORDER}"
@@ -74,17 +76,17 @@ main_menu() {
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      6) # Papar Port OpenVPN
+      7) # Papar Port OpenVPN
         title_banner
         show_openvpn_ports
         pause
         ;;
-      7) # Maklumat SlowDNS
+      8) # Maklumat SlowDNS
         title_banner
         show_slowdns_info
         pause
         ;;
-      8) # Maklumat Hysteria2
+      9) # Maklumat Hysteria2
         title_banner
         show_hysteria_info
         echo -e "${WHITE}Maklumat Sambungan:${RESET}"
@@ -95,7 +97,7 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
-      9) # Maklumat SSH WebSocket
+      10) # Maklumat SSH WebSocket
         title_banner
         echo -e "${PURPLE}${BOLD}Maklumat SSH WS Proxy${RESET}"
         echo -e "${FULL_BORDER}"
