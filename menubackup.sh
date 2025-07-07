@@ -100,11 +100,15 @@ do_config() {
   echo "TELEGRAM_BOT_TOKEN=\"$TOKEN\"" > "$CONFIG_FILE"
   echo "TELEGRAM_CHAT_ID=\"$CHATID\"" >> "$CONFIG_FILE"
   echo -e "${GREEN}Konfigurasi disimpan di $CONFIG_FILE.${RESET}"
+  source "$CONFIG_FILE"
   pause
 }
 
 backup_menu_ops() {
   while true; do
+    if [[ -f "$CONFIG_FILE" ]]; then
+      source "$CONFIG_FILE"
+    fi
     title_banner
     echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Backup VPN${RESET}"
     echo -e "${FULL_BORDER}"
