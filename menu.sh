@@ -18,11 +18,11 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH over Custom Proxy${RESET}" # Opsi baru, nama diubah
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH WebSocket${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}" # Rentang opsi diperbarui
+    echo -ne "${WHITE}Pilih pilihan [0-9]: ${RESET}"
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
@@ -42,8 +42,6 @@ main_menu() {
           "stunnel4:Stunnel4"
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
-          "cdn-dropbear:Custom Python Proxy (cdn-dropbear)"
-          "cdn-openssh:Custom Python Proxy (cdn-openssh)" # Tambahkan cdn-openssh
           "server-sldns:SlowDNS Server"
           "client-sldns:SlowDNS Client"
           "hysteria2:Hysteria2"
@@ -60,11 +58,11 @@ main_menu() {
           if [[ "$status" == "active" ]]; then
             echo -e "${YELLOW}  $service_desc: ${BRIGHT_GREEN}●${RESET} ${BRIGHT_GREEN}Aktif${RESET}"
           elif [[ "$status" == "inactive" ]]; then
-            echo -e "${RED}  $service_desc: ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
+            echo -e "${YELLOW}  $service_desc: ${RED}●${RESET} ${RED}Tidak Aktif${RESET}"
           elif [[ "$status" == "failed" ]]; then
-            echo -e "${RED}  $service_desc: ${RED}●${RESET} ${RED}Gagal${RESET}"
+            echo -e "${YELLOW}  $service_desc: ${RED}●${RESET} ${RED}Gagal${RESET}"
           else
-            echo -e "${GRAY}  $service_desc: ${GRAY}●${RESET} ${GRAY}$status${RESET}"
+            echo -e "${YELLOW}  $service_desc: ${GRAY}●${RESET} ${GRAY}$status${RESET}"
           fi
         done
         echo -e "${FULL_BORDER}"
@@ -98,22 +96,17 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
-      9) # Maklumat SSH over Custom Proxy (Opsi baru)
+      9) # Maklumat SSH WebSocket
         title_banner
-        echo -e "${PURPLE}${BOLD}Maklumat SSH over Custom Proxy${RESET}"
+        echo -e "${PURPLE}${BOLD}Maklumat SSH WebSocket${RESET}"
         echo -e "${FULL_BORDER}"
-        echo -e "${WHITE}Custom Proxy (cdn-dropbear):${RESET}"
-        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}2081${RESET}"
-        echo -e "${YELLOW}  Status:        $(systemctl is-active cdn-dropbear 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
-        echo -e "${SECTION_DIVIDER}"
-        echo -e "${WHITE}Custom Proxy (cdn-openssh):${RESET}"
-        echo -e "${YELLOW}  Port:          ${LIGHT_CYAN}2085${RESET}"
-        echo -e "${YELLOW}  Status:        $(systemctl is-active cdn-openssh 2>/dev/null | awk '{print ($1 == "active" ? "${BRIGHT_GREEN}● Aktif${RESET}" : "${RED}● Tidak Aktif${RESET}")}')${RESET}"
-        echo -e "${SECTION_DIVIDER}"
-        echo -e "${WHITE}Konfigurasi Klien (HTTP Injector/Sejenisnya):${RESET}"
-        echo -e "${YELLOW}  Remote Proxy:  ${LIGHT_CYAN}zn4oa6cok9jkhgn6c-maxiscx.siteintercept.qualtrics.com:[2081/2085]${RESET}"
-        echo -e "${YELLOW}  Payload:       ${LIGHT_CYAN}GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: majspace.works[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]${RESET}"
-        echo -e "${YELLOW}  Port SSH:      ${LIGHT_CYAN}22, 109, 143, 444, 777, 992${RESET}"
+        echo -e "${YELLOW}  SSH WS TCP (WebSocket): ${LIGHT_CYAN}8081${RESET}"
+        echo -e "${YELLOW}  SSH WS UDP (WebSocket): ${LIGHT_CYAN}2095${RESET}"
+        echo -e "${YELLOW}  Cara Sambungan (contoh SSH via WS):${RESET}"
+        echo -e "${GRAY}   - Host: $DOMAIN atau $SERVER_IP"
+        echo -e "   - Port: 8081 (TCP-WS), 2095 (UDP-WS)"
+        echo -e "   - Payload (TCP): ws://$DOMAIN:8081/"
+        echo -e "   - Payload contoh: GET / HTTP/1.1[crlf]Host: $DOMAIN[crlf]Upgrade: websocket[crlf][crlf]"
         echo -e "${FULL_BORDER}"
         pause
         ;;
@@ -124,7 +117,7 @@ main_menu() {
         exit 0
         ;;
       *)
-        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 9.${RESET}" # Rentang opsi diperbarui
+        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 0 dan 8.${RESET}"
         pause
         ;;
     esac
