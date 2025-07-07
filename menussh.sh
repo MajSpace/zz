@@ -55,7 +55,7 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
           echo -e "${SECTION_DIVIDER}"
           echo -e "${YELLOW}  Alamat IP:     ${LIGHT_CYAN}$IP${RESET}"
-          echo -e "${YELLOW}  Hos:           ${LIGHT_CYAN}$DOMAIN${RESET}"
+          echo -e "${YELLOW}  Domain:           ${LIGHT_CYAN}$DOMAIN${RESET}"
           echo -e "${YELLOW}  SSL/TLS:       ${LIGHT_CYAN}444, 777${RESET}"
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
           echo -e "${YELLOW}  SSH WS PROXY:    ${LIGHT_CYAN}8880${RESET}"

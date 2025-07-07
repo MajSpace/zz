@@ -47,7 +47,7 @@ title_banner() {
   echo -e "${WHITE}${BOLD}Maklumat Sistem:${RESET}"
   echo -e "${SHORT_BORDER}"
   echo -e "${YELLOW}  Alamat IP:    ${LIGHT_CYAN}$IP${RESET}"
-  echo -e "${YELLOW}  Hos/Domain:   ${LIGHT_CYAN}$DOMAIN${RESET}"
+  echo -e "${YELLOW}  Domain:   ${LIGHT_CYAN}$DOMAIN${RESET}"
   echo -e "${YELLOW}  ISP:          ${LIGHT_CYAN}$ISP${RESET}"
   echo -e "${YELLOW}  Masa Aktif:   ${LIGHT_CYAN}$UPTIME${RESET}"
   echo -e "${SHORT_BORDER}"

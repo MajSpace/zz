@@ -18,7 +18,7 @@ main_menu() {
     echo -e "${YELLOW}  6. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH WebSocket${RESET}"
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
@@ -99,7 +99,7 @@ main_menu() {
         title_banner
         echo -e "${PURPLE}${BOLD}Maklumat SSH WS Proxy${RESET}"
         echo -e "${FULL_BORDER}"
-        echo -e "${YELLOW}  SSH WS Proxy: ${LIGHT_CYAN}8880${RESET}"
+        echo -e "${YELLOW}  SSH Proxy: ${LIGHT_CYAN}8880${RESET}"
         echo -e "   - Payload contoh: GET / HTTP/1.1[crlf]Host: $DOMAIN[crlf]Upgrade: websocket[crlf][crlf]"
         echo -e "${FULL_BORDER}"
         pause

@@ -65,7 +65,7 @@ xray_vless_menu_ops() { # Mengganti nama fungsi
         else
           echo -e "${RED}✘ Ralat: Gagal mengemas kini konfigurasi Xray.${RESET}"
         fi
-        show_slowdns_info
+        echo -e "${FULL_BORDER}"
         pause
         ;;
       2) # Semak Pengguna VLESS
