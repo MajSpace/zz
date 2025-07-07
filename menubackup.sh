@@ -50,7 +50,7 @@ do_backup() {
   rm -rf "$BACKUP_DIR"
 
   # Kirim ke Telegram
-  TEXT="Backup VPN $(hostname) ($TGL) - $(date)\nFile: $BACKUP_FILE"
+  TEXT="Backup VPN $(hostname) $(date) Patch File: $BACKUP_FILE"
   curl -s -F chat_id="$TELEGRAM_CHAT_ID" -F document=@"$BACKUP_FILE" -F caption="$TEXT" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument" >/dev/null
   echo -e "${BRIGHT_GREEN}Backup telah dihantar ke Telegram.${RESET}"
   pause
