@@ -43,7 +43,6 @@ main_menu() {
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
           "server-sldns:SlowDNS Server"
-          "client-sldns:SlowDNS Client"
           "hysteria2:Hysteria2"
           "openvpn@server-udp-1194:OpenVPN UDP 1194"
           "openvpn@server-tcp-443:OpenVPN TCP 1443"
