@@ -58,8 +58,7 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  Hos:           ${LIGHT_CYAN}$DOMAIN${RESET}"
           echo -e "${YELLOW}  SSL/TLS:       ${LIGHT_CYAN}444, 777${RESET}"
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
-          echo -e "${YELLOW}  SSH WS TCP:    ${LIGHT_CYAN}8081${RESET}"
-          echo -e "${YELLOW}  SSH WS UDP:    ${LIGHT_CYAN}2095${RESET}"
+          echo -e "${YELLOW}  SSH WS PROXY:    ${LIGHT_CYAN}8880${RESET}"
           echo -e "${SECTION_DIVIDER}"
           show_slowdns_info
         else

@@ -98,14 +98,9 @@ main_menu() {
         ;;
       9) # Maklumat SSH WebSocket
         title_banner
-        echo -e "${PURPLE}${BOLD}Maklumat SSH WebSocket${RESET}"
+        echo -e "${PURPLE}${BOLD}Maklumat SSH WS Proxy${RESET}"
         echo -e "${FULL_BORDER}"
-        echo -e "${YELLOW}  SSH WS TCP (WebSocket): ${LIGHT_CYAN}8081${RESET}"
-        echo -e "${YELLOW}  SSH WS UDP (WebSocket): ${LIGHT_CYAN}2095${RESET}"
-        echo -e "${YELLOW}  Cara Sambungan (contoh SSH via WS):${RESET}"
-        echo -e "${GRAY}   - Host: $DOMAIN atau $SERVER_IP"
-        echo -e "   - Port: 8081 (TCP-WS), 2095 (UDP-WS)"
-        echo -e "   - Payload (TCP): ws://$DOMAIN:8081/"
+        echo -e "${YELLOW}  SSH WS Proxy: ${LIGHT_CYAN}8880${RESET}"
         echo -e "   - Payload contoh: GET / HTTP/1.1[crlf]Host: $DOMAIN[crlf]Upgrade: websocket[crlf][crlf]"
         echo -e "${FULL_BORDER}"
         pause
