@@ -20,6 +20,7 @@ main_menu() {
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
     echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
     echo -e "${YELLOW} 10. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
+    echo -e "${YELLOW} 11. ${WHITE}${BOLD}Pengurusan Bot Telegram${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
@@ -106,6 +107,7 @@ main_menu() {
         echo -e "${FULL_BORDER}"
         pause
         ;;
+      11) bottele ;; # Panggil skrip menu bot telegram
       0) # Keluar
         clear
         echo -e "${BRIGHT_GREEN}Terima kasih kerana menggunakan Sistem Pengurusan VPN!${RESET}"
