@@ -8,7 +8,7 @@ import re
 
 from telegram import Update, ForceReply
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from telegram.helpers import escape_html # <-- Ditambahkan
+import html
 
 # Konfigurasi Logging
 logging.basicConfig(
@@ -132,12 +132,12 @@ async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     message = (
         f"<b>Maklumat Server VPN:</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"🌐 Domain: <code>{escape_html(domain)}</code>\n"
-        f"IP: <code>{escape_html(ip)}</code>\n"
-        f"⏰ Masa Aktif: {escape_html(uptime)}\n"
-        f"📈 Load Average: {escape_html(load_avg)}\n"
-        f"💾 Memori: {escape_html(mem_usage)}\n"
-        f"💽 Disk: {escape_html(disk_usage)}\n\n"
+        f"🌐 Domain: <code>{html.escape(domain)}</code>\n"
+        f"IP: <code>{html.escape(ip)}</code>\n"
+        f"⏰ Masa Aktif: {html.escape(uptime)}\n"
+        f"📈 Load Average: {html.escape(load_avg)}\n"
+        f"💾 Memori: {html.escape(mem_usage)}\n"
+        f"💽 Disk: {html.escape(disk_usage)}\n\n"
         f"<b>Port Perkhidmatan:</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"SSH: 22\n"
@@ -150,13 +150,13 @@ async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         f"OpenVPN UDP: 1194, 2053\n"
         f"OpenVPN TCP: 1443, 8080\n"
         f"Hysteria2: 8443 UDP\n"
-        f"SlowDNS: 5300 UDP (NS: {escape_html(sldomain)}, Key: {escape_html(slpubkey)})\n\n"
+        f"SlowDNS: 5300 UDP (NS: {html.escape(sldomain)}, Key: {html.escape(slpubkey)})\n\n"
         f"<b>Pautan Konfigurasi OVPN (Default):</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"UDP 1194: http://{escape_html(ip)}/client-default-udp1194.ovpn\n"
-        f"TCP 1443: http://{escape_html(ip)}/client-default-tcp1443.ovpn\n"
-        f"UDP 2053: http://{escape_html(ip)}/client-default-udp2053.ovpn\n"
-        f"TCP 8080: http://{escape_html(ip)}/client-default-tcp8080.ovpn\n"
+        f"UDP 1194: http://{html.escape(ip)}/client-default-udp1194.ovpn\n"
+        f"TCP 1443: http://{html.escape(ip)}/client-default-tcp1443.ovpn\n"
+        f"UDP 2053: http://{html.escape(ip)}/client-default-udp2053.ovpn\n"
+        f"TCP 8080: http://{html.escape(ip)}/client-default-tcp8080.ovpn\n"
     )
     await update.message.reply_html(message)
 
@@ -222,19 +222,19 @@ async def create_ssh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     # Cek apakah username sudah ada di sistem
     if run_shell_command(f"id {username} &>/dev/null; echo $?").strip() == "0":
-        await update.message.reply_text(f"Ralat: Nama pengguna '{escape_html(username)}' sudah wujud.")
+        await update.message.reply_text(f"Ralat: Nama pengguna '{html.escape(username)}' sudah wujud.")
         return
 
     password = generate_password()
     expiry_date = (datetime.date.today() + datetime.timedelta(days=int(days_str))).strftime("%Y-%m-%d")
 
-    await update.message.reply_text(f"Sedang mencipta pengguna SSH '{escape_html(username)}'...")
+    await update.message.reply_text(f"Sedang mencipta pengguna SSH '{html.escape(username)}'...")
 
     cmd = f"useradd -e {expiry_date} -m -s /bin/bash {username} && echo '{username}:{password}' | chpasswd"
     result = run_shell_command(cmd)
 
     if "Ralat" in result or "gagal" in result.lower():
-        await update.message.reply_text(f"Gagal mencipta pengguna SSH: {escape_html(result)}")
+        await update.message.reply_text(f"Gagal mencipta pengguna SSH: {html.escape(result)}")
     else:
         run_shell_command(f"echo '{username} | {password} | Exp: {expiry_date}' >> {LOG_SSH_USERS}")
         domain, ip = get_domain_ip()
@@ -243,18 +243,18 @@ async def create_ssh(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         message = (
             f"<b>✔ Pengguna SSH berjaya dicipta!</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 Nama Pengguna: <code>{escape_html(username)}</code>\n"
-            f"🔑 Kata Laluan: <code>{escape_html(password)}</code>\n"
-            f"🗓 Tamat Tempoh: <code>{escape_html(expiry_date)}</code>\n\n"
+            f"👤 Nama Pengguna: <code>{html.escape(username)}</code>\n"
+            f"🔑 Kata Laluan: <code>{html.escape(password)}</code>\n"
+            f"🗓 Tamat Tempoh: <code>{html.escape(expiry_date)}</code>\n\n"
             f"<b>Maklumat Sambungan:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"🌐 Domain: <code>{escape_html(domain)}</code>\n"
-            f"IP: <code>{escape_html(ip)}</code>\n"
+            f"🌐 Domain: <code>{html.escape(domain)}</code>\n"
+            f"IP: <code>{html.escape(ip)}</code>\n"
             f"Port SSH: 22\n"
             f"Port Dropbear: 109, 143\n"
             f"Port Stunnel4: 444, 777\n"
             f"Port SSH WS Proxy: 8880\n"
-            f"Port SlowDNS: 5300 (NS: {escape_html(sldomain)}, Key: {escape_html(slpubkey)})\n"
+            f"Port SlowDNS: 5300 (NS: {html.escape(sldomain)}, Key: {html.escape(slpubkey)})\n"
             f"Port UDPGW: 7100-7900\n\n"
             f"<i>Gunakan aplikasi SSH/HTTP Custom/HTTP Injector.</i>"
         )
@@ -285,19 +285,19 @@ async def create_ovpn(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     # Cek apakah username sudah ada di sistem
     if run_shell_command(f"id {username} &>/dev/null; echo $?").strip() == "0":
-        await update.message.reply_text(f"Ralat: Nama pengguna '{escape_html(username)}' sudah wujud.")
+        await update.message.reply_text(f"Ralat: Nama pengguna '{html.escape(username)}' sudah wujud.")
         return
 
     password = generate_password()
     expiry_date = (datetime.date.today() + datetime.timedelta(days=int(days_str))).strftime("%Y-%m-%d")
 
-    await update.message.reply_text(f"Sedang mencipta pengguna OpenVPN '{escape_html(username)}'...")
+    await update.message.reply_text(f"Sedang mencipta pengguna OpenVPN '{html.escape(username)}'...")
 
     cmd = f"useradd -e {expiry_date} -m -s /bin/bash {username} && echo '{username}:{password}' | chpasswd"
     result = run_shell_command(cmd)
 
     if "Ralat" in result or "gagal" in result.lower():
-        await update.message.reply_text(f"Gagal mencipta pengguna OpenVPN: {escape_html(result)}")
+        await update.message.reply_text(f"Gagal mencipta pengguna OpenVPN: {html.escape(result)}")
     else:
         run_shell_command(f"echo '{username} | {password} | Exp: {expiry_date}' >> {LOG_OVPN_USERS}")
         domain, ip = get_domain_ip()
@@ -335,24 +335,24 @@ auth SHA256
 setenv CLIENT_CERT 0
 verb 3
 <ca>
-{ca_html_escaped if (ca_html_escaped := escape_html(ca_cert)) else ''}
+{ca_html_escaped if (ca_html_escaped := html.escape(ca_cert)) else ''}
 </ca>
 <tls-auth>
-{ta_html_escaped if (ta_html_escaped := escape_html(ta_key)) else ''}
+{ta_html_escaped if (ta_html_escaped := html.escape(ta_key)) else ''}
 </tls-auth>
 key-direction 1
 """
             config_file_path = f"{ovpn_webdir}/client-{username}-{mode_name}.ovpn"
             with open(config_file_path, "w") as f:
                 f.write(config_content)
-            ovpn_links.append(f"{mode_name.upper()}: http://{escape_html(ip)}/client-{escape_html(username)}-{mode_name}.ovpn")
+            ovpn_links.append(f"{mode_name.upper()}: http://{html.escape(ip)}/client-{html.escape(username)}-{mode_name}.ovpn")
 
         message = (
             f"<b>✔ Pengguna OpenVPN berjaya dicipta!</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 Nama Pengguna: <code>{escape_html(username)}</code>\n"
-            f"🔑 Kata Laluan: <code>{escape_html(password)}</code>\n"
-            f"🗓 Tamat Tempoh: <code>{escape_html(expiry_date)}</code>\n\n"
+            f"👤 Nama Pengguna: <code>{html.escape(username)}</code>\n"
+            f"🔑 Kata Laluan: <code>{html.escape(password)}</code>\n"
+            f"🗓 Tamat Tempoh: <code>{html.escape(expiry_date)}</code>\n\n"
             f"<b>Pautan Konfigurasi OVPN:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
             + "\n".join(ovpn_links) + "\n\n"
@@ -386,10 +386,10 @@ async def create_vmess(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # Cek apakah username sudah ada di Xray config
     xray_users_json = run_shell_command(f"jq -r '.inbounds[].settings.clients[]? | select(.email != null) | .email' {XRAY_CONFIG} 2>/dev/null")
     if username in xray_users_json.splitlines():
-        await update.message.reply_text(f"Ralat: Nama pengguna '{escape_html(username)}' sudah wujud untuk Xray.")
+        await update.message.reply_text(f"Ralat: Nama pengguna '{html.escape(username)}' sudah wujud untuk Xray.")
         return
 
-    await update.message.reply_text(f"Sedang mencipta pengguna Xray VMess '{escape_html(username)}'...")
+    await update.message.reply_text(f"Sedang mencipta pengguna Xray VMess '{html.escape(username)}'...")
 
     uuid = run_shell_command("cat /proc/sys/kernel/random/uuid")
     expiry_date = (datetime.date.today() + datetime.timedelta(days=int(days_str))).strftime("%Y-%m-%d")
@@ -432,20 +432,20 @@ async def create_vmess(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         message = (
             f"<b>✔ Pengguna Xray VMess berjaya dicipta!</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 Nama Pengguna: <code>{escape_html(username)}</code>\n"
-            f"🔑 UUID: <code>{escape_html(uuid)}</code>\n"
-            f"🗓 Tamat Tempoh: <code>{escape_html(expiry_date)}</code>\n\n"
+            f"👤 Nama Pengguna: <code>{html.escape(username)}</code>\n"
+            f"🔑 UUID: <code>{html.escape(uuid)}</code>\n"
+            f"🗓 Tamat Tempoh: <code>{html.escape(expiry_date)}</code>\n\n"
             f"<b>Pautan Konfigurasi:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"VMess WS TLS: <code>{escape_html(vmesslink1)}</code>\n\n"
-            f"VMess WS nTLS: <code>{escape_html(vmesslink2)}</code>\n\n"
-            f"VMess gRPC: <code>{escape_html(vmesslink3)}</code>\n\n"
+            f"VMess WS TLS: <code>{html.escape(vmesslink1)}</code>\n\n"
+            f"VMess WS nTLS: <code>{html.escape(vmesslink2)}</code>\n\n"
+            f"VMess gRPC: <code>{html.escape(vmesslink3)}</code>\n\n"
             f"<i>Gunakan aplikasi V2RayNG, NekoBox, atau sejenisnya.</i>"
         )
         await update.message.reply_html(message)
 
     except Exception as e:
-        await update.message.reply_text(f"Gagal mencipta pengguna Xray VMess: {escape_html(str(e))}")
+        await update.message.reply_text(f"Gagal mencipta pengguna Xray VMess: {html.escape(str(e))}")
         logger.error(f"Error creating VMess user: {e}")
 
 async def create_vless(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -474,10 +474,10 @@ async def create_vless(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # Cek apakah username sudah ada di Xray config
     xray_users_json = run_shell_command(f"jq -r '.inbounds[].settings.clients[]? | select(.email != null) | .email' {XRAY_CONFIG} 2>/dev/null")
     if username in xray_users_json.splitlines():
-        await update.message.reply_text(f"Ralat: Nama pengguna '{escape_html(username)}' sudah wujud untuk Xray.")
+        await update.message.reply_text(f"Ralat: Nama pengguna '{html.escape(username)}' sudah wujud untuk Xray.")
         return
 
-    await update.message.reply_text(f"Sedang mencipta pengguna Xray VLESS '{escape_html(username)}'...")
+    await update.message.reply_text(f"Sedang mencipta pengguna Xray VLESS '{html.escape(username)}'...")
 
     uuid = run_shell_command("cat /proc/sys/kernel/random/uuid")
     expiry_date = (datetime.date.today() + datetime.timedelta(days=int(days_str))).strftime("%Y-%m-%d")
@@ -506,20 +506,20 @@ async def create_vless(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         message = (
             f"<b>✔ Pengguna Xray VLESS berjaya dicipta!</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 Nama Pengguna: <code>{escape_html(username)}</code>\n"
-            f"🔑 UUID: <code>{escape_html(uuid)}</code>\n"
-            f"🗓 Tamat Tempoh: <code>{escape_html(expiry_date)}</code>\n\n"
+            f"👤 Nama Pengguna: <code>{html.escape(username)}</code>\n"
+            f"🔑 UUID: <code>{html.escape(uuid)}</code>\n"
+            f"🗓 Tamat Tempoh: <code>{html.escape(expiry_date)}</code>\n\n"
             f"<b>Pautan Konfigurasi:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"VLESS WS TLS: <code>{escape_html(vlesslink1)}</code>\n\n"
-            f"VLESS WS nTLS: <code>{escape_html(vlesslink2)}</code>\n\n"
-            f"VLESS gRPC: <code>{escape_html(vlesslink3)}</code>\n\n"
+            f"VLESS WS TLS: <code>{html.escape(vlesslink1)}</code>\n\n"
+            f"VLESS WS nTLS: <code>{html.escape(vlesslink2)}</code>\n\n"
+            f"VLESS gRPC: <code>{html.escape(vlesslink3)}</code>\n\n"
             f"<i>Gunakan aplikasi V2RayNG, NekoBox, atau sejenisnya.</i>"
         )
         await update.message.reply_html(message)
 
     except Exception as e:
-        await update.message.reply_text(f"Gagal mencipta pengguna Xray VLESS: {escape_html(str(e))}")
+        await update.message.reply_text(f"Gagal mencipta pengguna Xray VLESS: {html.escape(str(e))}")
         logger.error(f"Error creating VLESS user: {e}")
 
 async def create_hysteria(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -547,10 +547,10 @@ async def create_hysteria(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     # Cek apakah username sudah ada di log Hysteria
     if run_shell_command(f"grep -q '^{username}|' {LOG_HYSTERIA_USERS} 2>/dev/null; echo $?").strip() == "0":
-        await update.message.reply_text(f"Ralat: Nama pengguna '{escape_html(username)}' sudah wujud untuk Hysteria2.")
+        await update.message.reply_text(f"Ralat: Nama pengguna '{html.escape(username)}' sudah wujud untuk Hysteria2.")
         return
 
-    await update.message.reply_text(f"Sedang mencipta pengguna Hysteria2 '{escape_html(username)}'...")
+    await update.message.reply_text(f"Sedang mencipta pengguna Hysteria2 '{html.escape(username)}'...")
 
     password = generate_password()
     expiry_date = (datetime.date.today() + datetime.timedelta(days=int(days_str))).strftime("%Y-%m-%d")
@@ -606,25 +606,25 @@ http:
         message = (
             f"<b>✔ Pengguna Hysteria2 berjaya dicipta!</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 Nama Pengguna: <code>{escape_html(username)}</code>\n"
-            f"🔑 Kata Laluan: <code>{escape_html(password)}</code>\n"
-            f"🗓 Tamat Tempoh: <code>{escape_html(expiry_date)}</code>\n"
-            f"📊 Bandwidth: {escape_html(bandwidth)}\n\n"
+            f"👤 Nama Pengguna: <code>{html.escape(username)}</code>\n"
+            f"🔑 Kata Laluan: <code>{html.escape(password)}</code>\n"
+            f"🗓 Tamat Tempoh: <code>{html.escape(expiry_date)}</code>\n"
+            f"📊 Bandwidth: {html.escape(bandwidth)}\n\n"
             f"<b>Maklumat Sambungan:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"🌐 Server: <code>{escape_html(domain)}:8443</code>\n"
+            f"🌐 Server: <code>{html.escape(domain)}:8443</code>\n"
             f"Protokol: Hysteria2\n"
-            f"TLS SNI: <code>{escape_html(domain)}</code>\n"
+            f"TLS SNI: <code>{html.escape(domain)}</code>\n"
             f"Obfuscation: Salamander\n\n"
             f"<b>Pautan Konfigurasi:</b>\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"YAML Config: http://{escape_html(ip)}/hysteria-{escape_html(username)}.yaml\n\n"
+            f"YAML Config: http://{html.escape(ip)}/hysteria-{html.escape(username)}.yaml\n\n"
             f"<i>Gunakan aplikasi Hysteria2 Client.</i>"
         )
         await update.message.reply_html(message)
 
     except Exception as e:
-        await update.message.reply_text(f"Gagal mencipta pengguna Hysteria2: {escape_html(str(e))}")
+        await update.message.reply_text(f"Gagal mencipta pengguna Hysteria2: {html.escape(str(e))}")
         logger.error(f"Error creating Hysteria2 user: {e}")
 
 # Fungsi untuk encode base64 (untuk VMess)
