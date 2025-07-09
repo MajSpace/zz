@@ -7,8 +7,13 @@ BOTPY="/usr/local/bin/bot.py"
 function ensure_conf() {
     if [ ! -f "$CONF" ]; then
         echo "Membuat $CONF baru..."
-        echo "TELEGRAM_BOT_TOKEN=" > "$CONF"
+        echo "[DEFAULT]" > "$CONF"
+        echo "TELEGRAM_BOT_TOKEN=" >> "$CONF"
         echo "ALLOWED_CHAT_IDS=" >> "$CONF"
+    fi
+
+    if ! grep -q "^\[DEFAULT\]" "$CONF"; then
+        sed -i '1i [DEFAULT]' "$CONF"
     fi
 }
 
