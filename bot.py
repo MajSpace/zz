@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# Telegram Bot: MajSpace VPN (Melayu, Interaktif + Padam User)
-# Untuk python-telegram-bot==13.15
+# Telegram Bot: MajSpace VPN (Melayu, Interaktif + Tombol Hari & Konfirmasi + Menu Menarik)
+# Untuk python-telegram-bot==13.15 dan server Ubuntu dengan script MajSpace
+# Jalankan dengan: python3 bot_vpn_melayu_interaktif_btn.py
 
 import logging
 import subprocess
@@ -34,10 +35,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-(
-    PILIH_PROTOCOL, MASUKKAN_USERNAME, MASUKKAN_PASSWORD, MASUKKAN_HARI, SAHKAN_CIPTA,
-    PILIH_PADAM_PROTOCOL, PILIH_PADAM_USER, SAHKAN_PADAM_USER
-) = range(8)
+(PILIH_PROTOCOL, MASUKKAN_USERNAME, MASUKKAN_PASSWORD, MASUKKAN_HARI, SAHKAN_CIPTA,
+    PILIH_PADAM_PROTOCOL, PILIH_PADAM_USER, SAHKAN_PADAM_USER) = range(8)
 
 protocols = [
     ("SSH", "ssh"),
@@ -140,8 +139,34 @@ def masukkan_username(update, context):
     if not is_valid_username(username):
         update.message.reply_text("⛔️ Nama pengguna tidak sah. Gunakan (3-32 huruf).")
         return MASUKKAN_USERNAME
+
+    proto = context.user_data['protocol']
+
+    # --- Validasi user sudah ada ---
+    user_exists = False
+    if proto == 'ssh':
+        # Cek di /etc/passwd
+        userlist = run_bash("awk -F: '($3>=1000)&&($7==\"/bin/bash\"){print $1}' /etc/passwd").split('\n')
+        user_exists = username in [u.strip() for u in userlist if u.strip()]
+    elif proto == 'openvpn':
+        # Cek di log openvpn
+        userlist = run_bash("awk -F'|' '{print $1}' /var/log/ovpn-users.log 2>/dev/null").split('\n')
+        user_exists = username in [u.strip() for u in userlist if u.strip()]
+    elif proto in ('vmess', 'vless'):
+        json_path = '/usr/local/etc/xray/config.json' if os.path.exists('/usr/local/etc/xray/config.json') else '/etc/xray/config.json'
+        userlist = run_bash(f"jq -r '.inbounds[] | select(.protocol==\"{proto}\") | .settings.clients[]?.email' {json_path} 2>/dev/null").split('\n')
+        user_exists = username in [u.strip() for u in userlist if u.strip()]
+    elif proto == 'hysteria2':
+        userlist = run_bash("awk -F'|' '{print $1}' /var/log/hysteria-users.log 2>/dev/null").split('\n')
+        user_exists = username in [u.strip() for u in userlist if u.strip()]
+
+    if user_exists:
+        update.message.reply_text(f"⛔️ Nama pengguna `{username}` sudah wujud untuk protokol {protocol_dict[proto]}. Sila masukkan nama lain.", parse_mode=ParseMode.MARKDOWN)
+        return MASUKKAN_USERNAME
+    # --- End validasi ---
+
     context.user_data['username'] = username
-    if context.user_data['protocol'] in ('ssh', 'openvpn', 'hysteria2'):
+    if proto in ('ssh', 'openvpn', 'hysteria2'):
         update.message.reply_text("🔒 Masukkan kata laluan :")
         return MASUKKAN_PASSWORD
     else:
@@ -234,6 +259,10 @@ def sahkan_cipta(update, context):
             f"🔒 *SSL/TLS:* `444, 777`\n"
             f"🟢 *UDPGW:* `7100-7900`\n"
             f"🟣 *SSH WS PROXY:* `8880`\n"
+            f"🟠 *SLOWDNS:* `5300`\n"
+            f"🟠 *SLOWDNS PUBKEY:* `7fbd1f8aa0abfe15a7903e837f78aba39cf61d36f183bd604daa2fe4ef3b7b59`\n"
+            "\nContoh payload SSH WS:\n"
+            f"`GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: {DOMAIN}[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]`\n"
         )
         update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
@@ -245,6 +274,39 @@ def sahkan_cipta(update, context):
         cmd = f'{SUDO_CMD} useradd -e $(date -d "{days} days" +"%Y-%m-%d") -m -s /bin/bash {username} && echo "{username}:{passwd_arg}" | {SUDO_CMD} chpasswd'
         run_bash(cmd)
         run_bash(f'echo "{username} | {passwd_arg} | Exp: {exp_date}" >> /var/log/ovpn-users.log')
+        config_urls = []
+        for mode, port, proto_str in [
+            ('udp1194', 1194, 'udp'),
+            ('tcp1443', 1443, 'tcp'),
+            ('udp2053', 2053, 'udp'),
+            ('tcp8080', 8080, 'tcp')
+        ]:
+            ovpn_dir = '/var/www/html'
+            ca = run_bash("cat /etc/openvpn/ca.crt 2>/dev/null")
+            ta = run_bash("cat /etc/openvpn/ta.key 2>/dev/null")
+            cfg_path = f"{ovpn_dir}/client-{username}-{mode}.ovpn"
+            with open(cfg_path, "w") as f:
+                f.write(f"""client
+dev tun
+proto {proto_str}
+remote {DOMAIN} {port}
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+auth-user-pass
+remote-cert-tls server
+cipher AES-256-GCM
+auth SHA256
+setenv CLIENT_CERT 0
+verb 3
+<ca>
+{ca}</ca>
+<tls-auth>
+{ta}</tls-auth>
+key-direction 1
+""")
+            config_urls.append(f"http://{IP}/client-{username}-{mode}.ovpn")
         msg = (
             "✅ *Pengguna OpenVPN berjaya dicipta!*\n"
             "━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -254,7 +316,10 @@ def sahkan_cipta(update, context):
             "━━━━━━━━━━━━━━━━━━━━━━\n"
             f"🌐 *Alamat IP:* `{IP}`\n"
             f"🌍 *Domain:* `{DOMAIN}`\n"
+            "\n*Link config OVPN:*\n"
         )
+        for url in config_urls:
+            msg += f"- `{url}`\n"
         update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
@@ -269,18 +334,91 @@ def sahkan_cipta(update, context):
             jq_cmd = f'''jq --arg uuid "{uuid}" --arg user "{username}" '.inbounds |= map(if .protocol == "vless" then .settings.clients += [{{"id":$uuid,"email":$user}}] else . end)' {json_path} > /tmp/xray_config.json && mv /tmp/xray_config.json {json_path}'''
         run_bash(f"{SUDO_CMD} {jq_cmd}")
         run_bash(f"{SUDO_CMD} systemctl restart xray")
-        msg = (
-            f"✅ *Akaun {proto.upper()} berjaya dicipta!*\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"👤 *Nama Pengguna:* `{username}`\n"
-            f"🆔 *UUID:* `{uuid}`\n"
-            f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🌍 *Domain:* `{DOMAIN}`\n"
-            f"🌐 *IP:* `{IP}`\n"
-        )
-        update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
-        return ConversationHandler.END
+        if proto == 'vmess':
+            vmess_json_tls = f"""{{
+  "v": "2",
+  "ps": "{username}",
+  "add": "{DOMAIN}",
+  "port": "443",
+  "id": "{uuid}",
+  "aid": "0",
+  "net": "ws",
+  "path": "/vmess",
+  "type": "none",
+  "host": "",
+  "tls": "tls"
+}}"""
+            vmess_tls = "vmess://" + run_bash(f"echo -n '{vmess_json_tls}' | base64 -w 0").strip()
+
+            vmess_json_ntls = f"""{{
+  "v": "2",
+  "ps": "{username}",
+  "add": "{DOMAIN}",
+  "port": "80",
+  "id": "{uuid}",
+  "aid": "0",
+  "net": "ws",
+  "path": "/vmess",
+  "type": "none",
+  "host": "",
+  "tls": "none"
+}}"""
+            vmess_ntls = "vmess://" + run_bash(f"echo -n '{vmess_json_ntls}' | base64 -w 0").strip()
+
+            vmess_json_grpc = f"""{{
+  "v": "2",
+  "ps": "{username}",
+  "add": "{DOMAIN}",
+  "port": "443",
+  "id": "{uuid}",
+  "aid": "0",
+  "net": "grpc",
+  "path": "vmess-grpc",
+  "type": "none",
+  "host": "",
+  "tls": "tls"
+}}"""
+            vmess_grpc = "vmess://" + run_bash(f"echo -n '{vmess_json_grpc}' | base64 -w 0").strip()
+
+            msg = (
+                "✅ *Akaun VMess berjaya dicipta!*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 *Nama Pengguna:* `{username}`\n"
+                f"🆔 *UUID:* `{uuid}`\n"
+                f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🌍 *Domain:* `{DOMAIN}`\n"
+                f"🌐 *IP:* `{IP}`\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "*Link VMess:*\n"
+                f"• TLS (443 WS):\n`{vmess_tls}`\n"
+                f"• nTLS (80 WS):\n`{vmess_ntls}`\n"
+                f"• gRPC (443):\n`{vmess_grpc}`\n"
+            )
+            update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
+            return ConversationHandler.END
+
+        else:
+            vless_tls = f"vless://{uuid}@{DOMAIN}:443?path=/vless&security=tls&encryption=none&type=ws#{username}"
+            vless_ntls = f"vless://{uuid}@{DOMAIN}:80?path=/vless&encryption=none&type=ws#{username}"
+            vless_grpc = f"vless://{uuid}@{DOMAIN}:443?mode=gun&security=tls&encryption=none&type=grpc&serviceName=vless-grpc&sni={DOMAIN}#{username}"
+            msg = (
+                "✅ *Akaun VLESS berjaya dicipta!*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 *Nama Pengguna:* `{username}`\n"
+                f"🆔 *UUID:* `{uuid}`\n"
+                f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🌍 *Domain:* `{DOMAIN}`\n"
+                f"🌐 *IP:* `{IP}`\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "*Link VLESS:*\n"
+                f"• TLS (443 WS):\n`{vless_tls}`\n"
+                f"• nTLS (80 WS):\n`{vless_ntls}`\n"
+                f"• gRPC (443):\n`{vless_grpc}`\n"
+            )
+            update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
+            return ConversationHandler.END
 
     # Hysteria2
     elif proto == 'hysteria2':
@@ -297,9 +435,10 @@ def sahkan_cipta(update, context):
             f"👤 *Nama Pengguna:* `{username}`\n"
             f"🔑 *Kata Laluan:* `{passwd_arg}`\n"
             f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
             f"🌍 *Domain:* `{DOMAIN}`\n"
             f"🌐 *IP:* `{IP}`\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
             f"*Link Hysteria2:*\n`{link}`\n"
         )
         update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
@@ -418,7 +557,6 @@ def sahkan_padam_user(update, context):
     update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
-# =============== Senarai dan Status ================
 @restricted
 def senarai(update, context):
     msg = (

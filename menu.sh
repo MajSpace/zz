@@ -14,7 +14,7 @@ main_menu() {
     echo -e "${YELLOW}  3. ${WHITE}${BOLD}Pengurusan Xray VLESS${RESET}"
     echo -e "${YELLOW}  4. ${WHITE}${BOLD}Pengurusan Hysteria2${RESET}"
     echo -e "${YELLOW}  5. ${WHITE}${BOLD}pengurusan Backup${RESET}"
-    echo -e "${YELLOW}  6. ${WHITE}${BOLD}pengurusan Backup${RESET}"
+    echo -e "${YELLOW}  6. ${WHITE}${BOLD}pengurusan Bot Telegram${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Semak Status Perkhidmatan${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
