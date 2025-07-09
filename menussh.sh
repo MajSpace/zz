@@ -60,7 +60,6 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  UDPGW:         ${LIGHT_CYAN}7100-7900${RESET}"
           echo -e "${YELLOW}  SSH WS PROXY:  ${LIGHT_CYAN}8880${RESET}"
           echo -e "${SECTION_DIVIDER}"
-          show_slowdns_info
         else
           echo -e "${RED}✘ Ralat: Gagal mencipta pengguna SSH.${RESET}"
         fi

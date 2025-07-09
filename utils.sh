@@ -22,8 +22,6 @@ HYSTERIA_CONFIG="/etc/hysteria/hysteria2.yaml"
 DOMAIN=$(cat /etc/xray/domain.conf 2>/dev/null || echo "Tidak Tersedia")
 IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
-SLOWDNS_DOMAIN=$(cat /etc/nsdomain 2>/dev/null || echo "Tidak Tersedia")
-SLOWDNS_PUBKEY=$(cat /etc/slowdns/server.pub 2>/dev/null | head -n 1 || echo "Tidak Tersedia")
 UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
 
 # Sempadan Dekoratif
@@ -36,7 +34,7 @@ TITLE_ART="
 ${DARK_BLUE}   ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
 ${LIGHT_CYAN}   ║    ║ ║    ║ ║    ║ ║    ║${RESET}
 ${DARK_BLUE}   ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
-${PURPLE}   Sistem Pengurusan VPN${RESET}
+${PURPLE}           MAJ SPACE SCRIPT${RESET}
 "
 
 # Papar tajuk dengan maklumat sistem
@@ -152,16 +150,6 @@ validate_days() {
 generate_password() {
   local length=${1:-12}
   openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
-}
-
-# Papar maklumat SlowDNS
-show_slowdns_info() {
-  echo -e "${WHITE}Maklumat SlowDNS:${RESET}"
-  echo -e "${YELLOW}  DNS:           ${LIGHT_CYAN}8.8.8.8${RESET}"
-  echo -e "${YELLOW}  Nama Pelayan:  ${LIGHT_CYAN}${SLOWDNS_DOMAIN}${RESET}"
-  echo -e "${YELLOW}  Kunci PUB DNS: ${LIGHT_CYAN}${SLOWDNS_PUBKEY}${RESET}"
-  echo -e "${YELLOW}  SSH SlowDNS:   ${LIGHT_CYAN}5300${RESET}"
-  echo -e "${SHORT_BORDER}"
 }
 
 # Papar port OpenVPN

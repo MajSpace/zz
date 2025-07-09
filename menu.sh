@@ -18,13 +18,12 @@ main_menu() {
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  7. ${WHITE}${BOLD}Semak Status Perkhidmatan${RESET}"
     echo -e "${YELLOW}  8. ${WHITE}${BOLD}Papar Port OpenVPN${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat SlowDNS${RESET}"
-    echo -e "${YELLOW} 10. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
-    echo -e "${YELLOW} 11. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
+    echo -e "${YELLOW}  9. ${WHITE}${BOLD}Maklumat Hysteria2${RESET}"
+    echo -e "${YELLOW} 10. ${WHITE}${BOLD}Maklumat SSH Proxy${RESET}"
     echo -e "${SECTION_DIVIDER}"
     echo -e "${YELLOW}  0. ${WHITE}${BOLD}Keluar${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [0-11]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [0-10]: ${RESET}"
     read opt
     case $opt in
       1) menussh ;; # Panggil skrip menussh.sh
@@ -46,7 +45,6 @@ main_menu() {
           "stunnel4:Stunnel4"
           "badvpn-udpgw:BadVPN UDPGW"
           "ssh:OpenSSH"
-          "server-sldns:SlowDNS Server"
           "hysteria2:Hysteria2"
           "openvpn@server-udp-1194:OpenVPN UDP 1194"
           "openvpn@server-tcp-443:OpenVPN TCP 1443"
@@ -83,12 +81,7 @@ main_menu() {
         show_openvpn_ports
         pause
         ;;
-      9) # Maklumat SlowDNS
-        title_banner
-        show_slowdns_info
-        pause
-        ;;
-      10) # Maklumat Hysteria2
+      9) # Maklumat Hysteria2
         title_banner
         show_hysteria_info
         echo -e "${WHITE}Maklumat Sambungan:${RESET}"
@@ -99,18 +92,18 @@ main_menu() {
         echo -e "${SHORT_BORDER}"
         pause
         ;;
-      11) # Maklumat SSH WebSocket
+      10) # Maklumat SSH WebSocket
         title_banner
         echo -e "${PURPLE}${BOLD}Maklumat SSH WS Proxy${RESET}"
         echo -e "${FULL_BORDER}"
         echo -e "${YELLOW}  SSH Proxy: ${LIGHT_CYAN}8880${RESET}"
-        echo -e "   - Payload contoh: GET / HTTP/1.1[crlf]Host: $DOMAIN[crlf]Upgrade: websocket[crlf][crlf]"
+        echo -e " - Payload contoh: GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: $DOMAIN[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]"
         echo -e "${FULL_BORDER}"
         pause
         ;;
       0) # Keluar
         clear
-        echo -e "${BRIGHT_GREEN}Terima kasih kerana menggunakan Sistem Pengurusan VPN!${RESET}"
+        echo -e "${BRIGHT_GREEN}Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!${RESET}"
         echo -e "${WHITE}Keluar dari sistem...${RESET}"
         exit 0
         ;;

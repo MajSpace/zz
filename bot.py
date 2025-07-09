@@ -259,8 +259,6 @@ def sahkan_cipta(update, context):
             f"🔒 *SSL/TLS:* `444, 777`\n"
             f"🟢 *UDPGW:* `7100-7900`\n"
             f"🟣 *SSH WS PROXY:* `8880`\n"
-            f"🟠 *SLOWDNS:* `5300`\n"
-            f"🟠 *SLOWDNS PUBKEY:* `7fbd1f8aa0abfe15a7903e837f78aba39cf61d36f183bd604daa2fe4ef3b7b59`\n"
             "\nContoh payload SSH WS:\n"
             f"`GET /cdn-cgi/trace HTTP/1.1[crlf]Host: [host][crlf][crlf]CF-RAY / HTTP/1.1[crlf]Host: {DOMAIN}[crlf]Upgrade: Websocket[crlf]Connection: Keep-Alive[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]`\n"
         )
@@ -582,7 +580,6 @@ def status(update, context):
         "stunnel4": "Stunnel4",
         "badvpn-udpgw": "BadVPN UDPGW",
         "ssh": "OpenSSH",
-        "server-sldns": "SlowDNS Server",
         "hysteria2": "Hysteria2",
         "openvpn@server-udp-1194": "OpenVPN UDP 1194",
         "openvpn@server-tcp-443": "OpenVPN TCP 1443",

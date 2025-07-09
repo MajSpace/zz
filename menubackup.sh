@@ -29,7 +29,6 @@ do_backup() {
   cp -r /usr/local/etc/xray "$BACKUP_DIR/" 2>/dev/null
   cp -r /etc/openvpn "$BACKUP_DIR/" 2>/dev/null
   cp -r /etc/hysteria "$BACKUP_DIR/" 2>/dev/null
-  cp -r /etc/slowdns "$BACKUP_DIR/" 2>/dev/null
   cp -r /var/log/xray-users.log "$BACKUP_DIR/" 2>/dev/null
   cp -r /var/log/ovpn-users.log "$BACKUP_DIR/" 2>/dev/null
   cp -r /var/log/ssh-users.log "$BACKUP_DIR/" 2>/dev/null
@@ -93,7 +92,6 @@ do_restore() {
   cp -r "$BACKUP_DIR/xray/"* /usr/local/etc/xray/ 2>/dev/null
   cp -r "$BACKUP_DIR/openvpn/"* /etc/openvpn/ 2>/dev/null
   cp -r "$BACKUP_DIR/hysteria/"* /etc/hysteria/ 2>/dev/null
-  cp -r "$BACKUP_DIR/slowdns/"* /etc/slowdns/ 2>/dev/null
   cp "$BACKUP_DIR/xray-users.log" /var/log/xray-users.log 2>/dev/null
   cp "$BACKUP_DIR/ovpn-users.log" /var/log/ovpn-users.log 2>/dev/null
   cp "$BACKUP_DIR/ssh-users.log" /var/log/ssh-users.log 2>/dev/null
@@ -111,7 +109,7 @@ do_restore() {
   cp "$BACKUP_DIR/group" /etc/group
   cp "$BACKUP_DIR/gshadow" /etc/gshadow
 
-  systemctl restart nginx xray openvpn@server-udp-1194 openvpn@server-tcp-443 openvpn@server-udp-53 openvpn@server-tcp-80 dropbear stunnel4 badvpn-udpgw hysteria2 client-sldns server-sldns ws-python-proxy
+  systemctl restart nginx xray openvpn@server-udp-1194 openvpn@server-tcp-443 openvpn@server-udp-53 openvpn@server-tcp-80 dropbear stunnel4 badvpn-udpgw hysteria2 ws-python-proxy
 
   echo -e "${GREEN}✔ Proses pemulihan selesai.${RESET}"
   echo "$(date) RESTORE: $RESTORE_FILE" >> "$LOG"
