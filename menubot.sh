@@ -4,15 +4,33 @@ CONF="/etc/menubot.conf"
 BOTLOG="/var/log/bot.log"
 BOTPY="/usr/local/bin/bot.py"
 
+function ensure_conf() {
+    if [ ! -f "$CONF" ]; then
+        echo "Membuat $CONF baru..."
+        echo "TELEGRAM_BOT_TOKEN=" > "$CONF"
+        echo "ALLOWED_CHAT_IDS=" >> "$CONF"
+    fi
+}
+
 function edit_token() {
+    ensure_conf
     read -p "Masukkan TOKEN BOT TELEGRAM baru: " token
-    sed -i "s/^TELEGRAM_BOT_TOKEN=.*/TELEGRAM_BOT_TOKEN=${token}/" $CONF
+    if grep -q "^TELEGRAM_BOT_TOKEN=" "$CONF"; then
+        sed -i "s|^TELEGRAM_BOT_TOKEN=.*|TELEGRAM_BOT_TOKEN=${token}|" "$CONF"
+    else
+        echo "TELEGRAM_BOT_TOKEN=${token}" >> "$CONF"
+    fi
     echo "TOKEN diperbaharui."
 }
 
 function edit_id() {
+    ensure_conf
     read -p "Masukkan ALLOWED_CHAT_IDS baru (pisahkan dengan koma): " ids
-    sed -i "s/^ALLOWED_CHAT_IDS=.*/ALLOWED_CHAT_IDS=${ids}/" $CONF
+    if grep -q "^ALLOWED_CHAT_IDS=" "$CONF"; then
+        sed -i "s|^ALLOWED_CHAT_IDS=.*|ALLOWED_CHAT_IDS=${ids}|" "$CONF"
+    else
+        echo "ALLOWED_CHAT_IDS=${ids}" >> "$CONF"
+    fi
     echo "ID diupdate."
 }
 
@@ -38,10 +56,10 @@ function status_bot() {
 while true; do
 clear
 echo "╔════════════════════════╗"
-echo "      Menu Bot Telegram      "
+echo "      Menu Bot Telegram  "
 echo "╠════════════════════════╣"
 echo " 1. Edit TOKEN"
-echo " 2. Edit ID Telegram"
+echo " 2. Edit ALLOWED_CHAT_IDS"
 echo " 3. Start Bot"
 echo " 4. Stop Bot"
 echo " 5. Status Bot"
