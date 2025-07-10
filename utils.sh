@@ -15,6 +15,10 @@ BG_CYAN="\033[46m"
 BG_PURPLE="\033[45m"
 RESET="\033[0m"
 
+# Title & Menu Title (untuk center)
+MENU_TITLE="MENU UTAMA"
+TITLE_TEXT="MAJ SPACE SCRIPT MANAGER"
+
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
@@ -25,29 +29,38 @@ ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
 UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
 
 # Sempadan Dekoratif
-FULL_BORDER="${PURPLE}╾━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╼${RESET}"
-SHORT_BORDER="${DARK_BLUE}┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅${RESET}"
-SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
+FULL_BORDER="${PURPLE}╾──────────────────────────────────────────────────────────────────────────────╼${RESET}"
+SHORT_BORDER="${DARK_BLUE}─────────────────────────────────────────────────────${RESET}"
+SECTION_DIVIDER="${GRAY}--------------------------------------------------------${RESET}"
 
-# ASCII Art yang Diperbarui dengan Kesan Gradasi
+# Fungsi center text
+center_text() {
+  local text="$1"
+  local width=$(tput cols)
+  local padding=$(( (width - ${#text}) / 2 ))
+  printf "%*s%s%*s\n" $padding "" "$text" $padding ""
+}
+
+# ASCII Art (modern)
 TITLE_ART="
-${DARK_BLUE}            ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
-${LIGHT_CYAN}            ║    ║ ║    ║ ║    ║ ║    ║${RESET}
-${DARK_BLUE}            ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
-${PURPLE}             ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
+${DARK_BLUE}╔══════════════════════════════════════════════════════════════╗${RESET}
+${LIGHT_CYAN}║                                                          ║${RESET}
+${DARK_BLUE}║${RESET}${BOLD}        $TITLE_TEXT        ${RESET}${DARK_BLUE}║${RESET}
+${LIGHT_CYAN}║                                                          ║${RESET}
+${DARK_BLUE}╚══════════════════════════════════════════════════════════════╝${RESET}
 "
 
-# Papar tajuk dengan maklumat sistem
+# Papar tajuk dengan maklumat sistem (centered)
 title_banner() {
   clear
-  echo -e "${TITLE_ART}"
+  center_text "${TITLE_ART}"
   echo -e "${FULL_BORDER}"
-  echo -e "${WHITE}${BOLD}Maklumat Sistem:${RESET}"
+  center_text "${BOLD}MAKLUMAT SISTEM${RESET}"
   echo -e "${SHORT_BORDER}"
-  echo -e "${YELLOW}  Alamat IP:    ${LIGHT_CYAN}$IP${RESET}"
-  echo -e "${YELLOW}  Domain:       ${LIGHT_CYAN}$DOMAIN${RESET}"
-  echo -e "${YELLOW}  ISP:          ${LIGHT_CYAN}$ISP${RESET}"
-  echo -e "${YELLOW}  Masa Aktif:   ${LIGHT_CYAN}$UPTIME${RESET}"
+  printf "%-15s %-32s\n" "${YELLOW}Alamat IP${RESET}   :" "${LIGHT_CYAN}$IP${RESET}"
+  printf "%-15s %-32s\n" "${YELLOW}Domain${RESET}      :" "${LIGHT_CYAN}$DOMAIN${RESET}"
+  printf "%-15s %-32s\n" "${YELLOW}ISP${RESET}         :" "${LIGHT_CYAN}$ISP${RESET}"
+  printf "%-15s %-32s\n" "${YELLOW}Masa Aktif${RESET}  :" "${LIGHT_CYAN}$UPTIME${RESET}"
   echo -e "${SHORT_BORDER}"
   echo
 }
@@ -100,35 +113,35 @@ validate_username() {
   local username=$1
   local type=$2
   if [[ -z "$username" ]]; then
-    echo -e "${RED}✘ Ralat: Nama pengguna tidak boleh kosong.${RESET}"
+    echo -e "${RED}Nama pengguna tidak boleh kosong.${RESET}"
     return 1
   fi
   if [[ ! "$username" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-    echo -e "${RED}✘ Ralat: Nama pengguna hanya boleh mengandungi huruf, nombor, tanda hubung, atau garis bawah.${RESET}"
+    echo -e "${RED}Nama pengguna hanya boleh mengandungi huruf, nombor, tanda hubung, atau garis bawah.${RESET}"
     return 1
   fi
   case $type in
     "SSH")
       if id "$username" >/dev/null 2>&1; then
-        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk SSH.${RESET}"
+        echo -e "${RED}Nama pengguna '$username' sudah wujud untuk SSH.${RESET}"
         return 1
       fi
       ;;
     "XRAY")
       if [[ -f "$XRAY_CONFIG" ]] && jq -e --arg user "$username" '.inbounds[].settings.clients[]? | select(.email==$user)' "$XRAY_CONFIG" >/dev/null; then
-        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk Xray.${RESET}"
+        echo -e "${RED}Nama pengguna '$username' sudah wujud untuk Xray.${RESET}"
         return 1
       fi
       ;;
     "OPENVPN")
       if id "$username" >/dev/null 2>&1; then
-        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk OpenVPN.${RESET}"
+        echo -e "${RED}Nama pengguna '$username' sudah wujud untuk OpenVPN.${RESET}"
         return 1
       fi
       ;;
     "HYSTERIA")
       if grep -q "^$username|" /var/log/hysteria-users.log 2>/dev/null; then
-        echo -e "${RED}✘ Ralat: Nama pengguna '$username' sudah wujud untuk Hysteria2.${RESET}"
+        echo -e "${RED}Nama pengguna '$username' sudah wujud untuk Hysteria2.${RESET}"
         return 1
       fi
       ;;
@@ -140,7 +153,7 @@ validate_username() {
 validate_days() {
   local days=$1
   if [[ ! "$days" =~ ^[0-9]+$ ]] || [[ "$days" -le 0 ]]; then
-    echo -e "${RED}✘ Ralat: Sila masukkan bilangan hari yang sah (nombor positif).${RESET}"
+    echo -e "${RED}Sila masukkan bilangan hari yang sah (nombor positif).${RESET}"
     return 1
   fi
   return 0
@@ -154,20 +167,18 @@ generate_password() {
 
 # Papar port OpenVPN
 show_openvpn_ports() {
-  echo -e "${PURPLE}${BOLD}Port Perkhidmatan OpenVPN:${RESET}"
-  echo -e "${YELLOW}  UDP Standard:      ${LIGHT_CYAN}1194${RESET}"
-  echo -e "${YELLOW}  TCP HTTPS Bypass:  ${LIGHT_CYAN}1443${RESET}"
-  echo -e "${YELLOW}  UDP DNS Bypass:    ${LIGHT_CYAN}2053${RESET}"
-  echo -e "${YELLOW}  TCP HTTP Bypass:   ${LIGHT_CYAN}8080${RESET}"
+  printf "%-22s %s\n" "${YELLOW}UDP Standard${RESET}" "${LIGHT_CYAN}1194${RESET}"
+  printf "%-22s %s\n" "${YELLOW}TCP HTTPS Bypass${RESET}" "${LIGHT_CYAN}1443${RESET}"
+  printf "%-22s %s\n" "${YELLOW}UDP DNS Bypass${RESET}" "${LIGHT_CYAN}2053${RESET}"
+  printf "%-22s %s\n" "${YELLOW}TCP HTTP Bypass${RESET}" "${LIGHT_CYAN}8080${RESET}"
   echo -e "${SHORT_BORDER}"
 }
 
 # Papar maklumat Hysteria2
 show_hysteria_info() {
-  echo -e "${PURPLE}${BOLD}Maklumat Perkhidmatan Hysteria2:${RESET}"
-  echo -e "${YELLOW}  Port:              ${LIGHT_CYAN}8443 (UDP)${RESET}"
-  echo -e "${YELLOW}  Protocol:          ${LIGHT_CYAN}QUIC/HTTP3${RESET}"
-  echo -e "${YELLOW}  Bandwidth:         ${LIGHT_CYAN}Unlimited${RESET}"
-  echo -e "${YELLOW}  Congestion Control:${LIGHT_CYAN}BBR${RESET}"
+  printf "%-22s %s\n" "${YELLOW}Port${RESET}" "${LIGHT_CYAN}8443 (UDP)${RESET}"
+  printf "%-22s %s\n" "${YELLOW}Protocol${RESET}" "${LIGHT_CYAN}QUIC/HTTP3${RESET}"
+  printf "%-22s %s\n" "${YELLOW}Bandwidth${RESET}" "${LIGHT_CYAN}Unlimited${RESET}"
+  printf "%-22s %s\n" "${YELLOW}Congestion Control${RESET}" "${LIGHT_CYAN}BBR${RESET}"
   echo -e "${SHORT_BORDER}"
 }
