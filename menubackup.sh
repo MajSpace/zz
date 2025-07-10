@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Source utiliti global jika ada
 source /usr/local/bin/utils.sh 2>/dev/null
 
 BACKUP_DIR="/root/vpn-backup"
@@ -8,23 +9,19 @@ BACKUP_FILE="/root/vpn-backup-$TGL.tar.gz"
 LOG="/root/backup_restore.log"
 CONFIG_FILE="/etc/backup.conf"
 
+# Baca konfigurasi (token/chatid)
 if [[ -f "$CONFIG_FILE" ]]; then
   source "$CONFIG_FILE"
 fi
 
 do_backup() {
-  clear
-  header_info
-  header_service_status
-  echo -e "${BGAQUA}                   BUAT SANDARAN VPN & HANTAR TELEGRAM        ${NC}"
-  echo -e "${FULL_BORDER}"
   if [[ -z "$TELEGRAM_BOT_TOKEN" || -z "$TELEGRAM_CHAT_ID" ]]; then
-    echo -e "${RED}✘ Token bot atau Chat ID Telegram belum disediakan!${RESET}"
+    echo -e "${RED}✘ Token bot atau Chat ID Telegram belum disediakan! Sila tetapkan dahulu melalui menu ini.${RESET}"
     pause
     return
   fi
 
-  loading_animation "Membuat salinan sandaran ke $BACKUP_FILE"
+  echo -e "${YELLOW}Sedang membuat salinan sandaran ke $BACKUP_FILE ...${RESET}"
   rm -rf "$BACKUP_DIR"
   mkdir -p "$BACKUP_DIR"
 
@@ -54,7 +51,7 @@ do_backup() {
   echo "$(date) BACKUP: $BACKUP_FILE" >> "$LOG"
   rm -rf "$BACKUP_DIR"
 
-  # Kirim ke Telegram
+  # Hantar ke Telegram dengan gaya profesional
   HOST=$(hostname)
   TANGGAL=$(date '+%d-%m-%Y %H:%M:%S')
   FILE_NAME=$(basename "$BACKUP_FILE")
@@ -76,16 +73,10 @@ _Backup by Maj Space_"
           "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument" >/dev/null
 
   echo -e "${BRIGHT_GREEN}✔ Sandaran telah dihantar ke Telegram.${RESET}"
-  echo -e "${FULL_BORDER}"
   pause
 }
 
 do_restore() {
-  clear
-  header_info
-  header_service_status
-  echo -e "${BGAQUA}                   PULIHKAN KONFIGURASI DARI SANDARAN         ${NC}"
-  echo -e "${FULL_BORDER}"
   read -rp "Sila masukkan path fail sandaran (.tar.gz): " RESTORE_FILE
   if [[ ! -f "$RESTORE_FILE" ]]; then
     echo -e "${RED}✘ Fail tidak ditemui! Sila semak semula.${RESET}"
@@ -93,7 +84,7 @@ do_restore() {
     return
   fi
 
-  loading_animation "Memulihkan konfigurasi daripada $RESTORE_FILE"
+  echo -e "${YELLOW}Memulihkan konfigurasi daripada $RESTORE_FILE ...${RESET}"
   mkdir -p "$BACKUP_DIR"
   tar -xzf "$RESTORE_FILE" -C "$BACKUP_DIR"
 
@@ -123,23 +114,16 @@ do_restore() {
   echo -e "${GREEN}✔ Proses pemulihan selesai.${RESET}"
   echo "$(date) RESTORE: $RESTORE_FILE" >> "$LOG"
   rm -rf "$BACKUP_DIR"
-  echo -e "${FULL_BORDER}"
   pause
 }
 
 do_config() {
-  clear
-  header_info
-  header_service_status
-  echo -e "${BGAQUA}                  TETAPAN TELEGRAM BACKUP                     ${NC}"
-  echo -e "${FULL_BORDER}"
   read -rp "Masukkan TELEGRAM_BOT_TOKEN: " TOKEN
   read -rp "Masukkan TELEGRAM_CHAT_ID: " CHATID
   echo "TELEGRAM_BOT_TOKEN=\"$TOKEN\"" > "$CONFIG_FILE"
   echo "TELEGRAM_CHAT_ID=\"$CHATID\"" >> "$CONFIG_FILE"
   echo -e "${GREEN}✔ Konfigurasi Telegram telah disimpan di $CONFIG_FILE.${RESET}"
   source "$CONFIG_FILE"
-  echo -e "${FULL_BORDER}"
   pause
 }
 
@@ -148,22 +132,21 @@ backup_menu_ops() {
     if [[ -f "$CONFIG_FILE" ]]; then
       source "$CONFIG_FILE"
     fi
-    clear
-    header_info
-    header_service_status
-    echo -e "${BGAQUA}                PENGURUSAN BACKUP & RESTORE                   ${NC}"
+    title_banner
+    echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Sandaran VPN${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -e " [${AQUA}01${NC}] Backup Data & Hantar ke Telegram"
-    echo -e " [${AQUA}02${NC}] Restore Data Server"
-    echo -e " [${AQUA}03${NC}] Tetapkan Bot Telegram & Chat ID"
-    echo -e " [${AQUA}04${NC}] Kembali ke Menu Utama"
+    echo -e "${YELLOW}  1. ${WHITE}Buat Sandaran & Hantar ke Telegram${RESET}"
+    echo -e "${YELLOW}  2. ${WHITE}Pulihkan Konfigurasi dari Sandaran${RESET}"
+    echo -e "${YELLOW}  3. ${WHITE}Tetapkan Bot Telegram & Chat ID${RESET}"
+    echo -e "${YELLOW}  4. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
-    read -p "[###] Pilih Menu [01-04]: " opt
+    echo -ne "${WHITE}Sila pilih [1-4]: ${RESET}"
+    read opt
     case $opt in
-      1|01) do_backup ;;
-      2|02) do_restore ;;
-      3|03) do_config ;;
-      4|04) return ;;
+      1) do_backup ;;
+      2) do_restore ;;
+      3) do_config ;;
+      4) return ;;
       *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih antara 1-4.${RESET}"; pause ;;
     esac
   done

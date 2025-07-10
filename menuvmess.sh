@@ -1,34 +1,41 @@
+# File: MultipleFiles/menuvmess.sh
 #!/bin/bash
 
 # Source file utilitas global
 source /usr/local/bin/utils.sh
 
-xray_vmess_menu_ops() {
+# Sub-Menu Xray VMess
+xray_vmess_menu_ops() { # Mengganti nama fungsi
   while true; do
-    clear
-    header_info
-    header_service_status
-    echo -e "${BGAQUA}                    PENGURUSAN XRAY VMESS                    ${NC}"
+    title_banner
+    echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Xray VMess${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -e " [${AQUA}01${NC}] Cipta Pengguna VMess"
-    echo -e " [${AQUA}02${NC}] Semak Pengguna VMess"
-    echo -e " [${AQUA}03${NC}] Padam Pengguna VMess"
-    echo -e " [${AQUA}04${NC}] Kembali ke Menu Utama"
+    echo -e "${YELLOW}  1. ${WHITE}Cipta Pengguna VMess${RESET}"
+    echo -e "${YELLOW}  2. ${WHITE}Semak Pengguna VMess${RESET}"
+    echo -e "${YELLOW}  3. ${WHITE}Padam Pengguna VMess${RESET}"
+    echo -e "${YELLOW}  4. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
-    read -p "[###] Pilih Menu [01-04]: " opt
+    echo -ne "${WHITE}Pilih pilihan [1-4]: ${RESET}"
+    read opt
     case $opt in
-      1|01) # Cipta Pengguna VMess
-        clear
-        header_info
-        echo -e "${BGAQUA}                   CIPTA PENGGUNA VMESS                      ${NC}"
+      1) # Cipta Pengguna VMess
+        title_banner
+        echo -e "${PURPLE}${BOLD}Cipta Pengguna VMess${RESET}"
         echo -e "${FULL_BORDER}"
         read -rp "Nama pengguna: " XRAY_USER
-        if ! validate_username "$XRAY_USER" "XRAY"; then pause; continue; fi
-        read -rp "Berapa lama sah (hari)?: " XRAY_DAYS
-        if ! validate_days "$XRAY_DAYS"; then pause; continue; fi
+        if ! validate_username "$XRAY_USER" "XRAY"; then
+          pause
+          continue
+        fi
+        read -rp "Berapa lama sah?: " XRAY_DAYS
+        if ! validate_days "$XRAY_DAYS"; then
+          pause
+          continue
+        fi
         if [[ ! -f "$XRAY_CONFIG" ]]; then
           echo -e "${RED}✘ Ralat: Fail konfigurasi Xray tidak ditemui.${RESET}"
-          pause; continue
+          pause
+          continue
         fi
         loading_animation "Mencipta pengguna VMess"
         XRAY_UUID=$(cat /proc/sys/kernel/random/uuid)
@@ -42,7 +49,6 @@ xray_vmess_menu_ops() {
           )' "$XRAY_CONFIG" > /tmp/xray_config.json && mv /tmp/xray_config.json "$XRAY_CONFIG"; then
           systemctl restart xray 2>/dev/null
           echo "$XRAY_USER | $XRAY_UUID | vmess | Exp: $exp_date" >> /var/log/xray-users.log
-          # Generate link
           vmess_json_tls=$(cat <<EOF
 {
   "v": "2",
@@ -60,6 +66,10 @@ xray_vmess_menu_ops() {
 EOF
 )
           vmesslink1="vmess://$(echo "$vmess_json_tls" | base64 -w 0)"
+          echo -e "${SECTION_DIVIDER}"
+          echo -e "${YELLOW}  VMess WS TLS: ${LIGHT_CYAN}$vmesslink1${RESET}"
+          echo -e "${YELLOW}  Tamat Tempoh: ${LIGHT_CYAN}$exp_date${RESET}"
+          echo -e "${SECTION_DIVIDER}"
           vmess_json_ntls=$(cat <<EOF
 {
   "v": "2",
@@ -77,6 +87,9 @@ EOF
 EOF
 )
           vmesslink2="vmess://$(echo "$vmess_json_ntls" | base64 -w 0)"
+          echo -e "${YELLOW}  VMess WS nTLS: ${LIGHT_CYAN}$vmesslink2${RESET}"
+          echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
+          echo -e "${SECTION_DIVIDER}"
           vmess_json_grpc=$(cat <<EOF
 {
   "v": "2",
@@ -94,10 +107,6 @@ EOF
 EOF
 )
           vmesslink3="vmess://$(echo "$vmess_json_grpc" | base64 -w 0)"
-          echo -e "${BRIGHT_GREEN}✔ Pengguna VMess berjaya dicipta.${RESET}"
-          echo -e "${SECTION_DIVIDER}"
-          echo -e "${YELLOW}  VMess WS TLS: ${LIGHT_CYAN}$vmesslink1${RESET}"
-          echo -e "${YELLOW}  VMess WS nTLS: ${LIGHT_CYAN}$vmesslink2${RESET}"
           echo -e "${YELLOW}  VMess gRPC: ${LIGHT_CYAN}$vmesslink3${RESET}"
           echo -e "${YELLOW}  Tamat Tempoh: ${LIGHT_CYAN}$exp_date${RESET}"
           echo -e "${SECTION_DIVIDER}"
@@ -107,12 +116,11 @@ EOF
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      2|02) # Semak Pengguna VMess
-        clear
-        header_info
-        echo -e "${BGAQUA}                   SENARAI PENGGUNA VMESS                    ${NC}"
+      2) # Semak Pengguna VMess
+        title_banner
+        echo -e "${PURPLE}${BOLD}Senarai Pengguna VMess${RESET}"
         echo -e "${FULL_BORDER}"
-        mapfile -t XRAY_USERS < <(list_xray_users | grep -E 'vmess')
+        mapfile -t XRAY_USERS < <(list_xray_users | grep -E 'vmess') # Filter hanya pengguna VMess
         if [[ ${#XRAY_USERS[@]} -eq 0 ]]; then
           echo -e "${RED}Tiada pengguna VMess ditemui.${RESET}"
         else
@@ -125,21 +133,22 @@ EOF
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      3|03) # Padam Pengguna VMess
-        clear
-        header_info
-        echo -e "${BGAQUA}                    PADAM PENGGUNA VMESS                     ${NC}"
+      3) # Padam Pengguna VMess
+        title_banner
+        echo -e "${PURPLE}${BOLD}Padam Pengguna VMess${RESET}"
         echo -e "${FULL_BORDER}"
-        mapfile -t XRAY_USERS < <(list_xray_users | grep -E 'vmess')
+        mapfile -t XRAY_USERS < <(list_xray_users | grep -E 'vmess') # Filter hanya pengguna VMess
         if [[ ${#XRAY_USERS[@]} -eq 0 ]]; then
           echo -e "${RED}Tiada pengguna VMess ditemui.${RESET}"
-          pause; continue
+          pause
+          continue
         fi
         echo -e "${WHITE}Pilih pengguna VMess untuk dipadam:${RESET}"
         for i in "${!XRAY_USERS[@]}"; do
           echo -e "${YELLOW}  $((i+1)). ${WHITE}${XRAY_USERS[$i]}${RESET}"
         done
-        read -p "Masukkan nombor [1-${#XRAY_USERS[@]}]: " XRAY_NUM
+        echo -ne "${WHITE}Masukkan nombor [1-${#XRAY_USERS[@]}]: ${RESET}"
+        read XRAY_NUM
         if [[ "$XRAY_NUM" =~ ^[0-9]+$ ]] && (( XRAY_NUM >= 1 && XRAY_NUM <= ${#XRAY_USERS[@]} )); then
           XRAY_USER="${XRAY_USERS[$((XRAY_NUM-1))]}"
           loading_animation "Memadam pengguna VMess"
@@ -151,7 +160,7 @@ EOF
               end
             )' "$XRAY_CONFIG" > /tmp/xray_config.json && mv /tmp/xray_config.json "$XRAY_CONFIG"; then
             systemctl restart xray 2>/dev/null
-            sed -i "/^$XRAY_USER |.*vmess/d" /var/log/xray-users.log 2>/dev/null
+            sed -i "/^$XRAY_USER |.*vmess/d" /var/log/xray-users.log 2>/dev/null # Hapus hanya entri VMess
             echo -e "${BRIGHT_GREEN}✔ Pengguna VMess '$XRAY_USER' berjaya dipadam.${RESET}"
           else
             echo -e "${RED}✘ Ralat: Gagal memadam pengguna VMess '$XRAY_USER'.${RESET}"
@@ -162,9 +171,16 @@ EOF
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      4|04) return ;;
-      *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih angka yang tersedia.${NC}" ; sleep 1 ;;
+      4) # Kembali ke Menu Utama
+        return
+        ;;
+      *)
+        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 1 dan 4.${RESET}"
+        pause
+        ;;
     esac
   done
 }
+
+# Panggil fungsi menu
 xray_vmess_menu_ops
