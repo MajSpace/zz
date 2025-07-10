@@ -14,26 +14,14 @@ main_menu() {
     clear
     # Header Sistem Info
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BGAQUA}                     SISTEM INFORMATION                      ${NC}"
+    echo -e "${BGAQUA}                     MAKLUMAT SISTEM                         ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}ISP                  :${NC}  $ISP"
     echo -e "${GREEN}Domain               :${NC}  $DOMAIN"
     echo -e "${GREEN}IP Address           :${NC}  $IP"
     echo -e "${GREEN}System Uptime        :${NC}  $UPTIME"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-
-    echo -e "${BGRED}                        SERVICE STATUS                       ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    # Status servis utama (pakai logic script Anda)
-    state_nginx=$(systemctl is-active nginx)
-    state_xray=$(systemctl is-active xray)
-    state_ws=$(systemctl is-active ws-python-proxy)
-    state_openvpn=$(systemctl is-active openvpn@server-udp-1194)
-    state_hysteria=$(systemctl is-active hysteria2)
-    echo -e "  NGINX = $state_nginx   XRAY = $state_xray   WS-SSH = $state_ws"
-    echo -e "  OPENVPN = $state_openvpn   HYSTERIA2 = $state_hysteria"
-    echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-
     echo -e "${BGAQUA}                         MENU MANAGER                        ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e " [${AQUA}01${NC}] Pengurusan SSH & OpenVPN     [${AQUA}07${NC}] Semak Status Perkhidmatan"
@@ -54,7 +42,6 @@ main_menu() {
       5|05) menubackup ;;
       6|06) menubot ;;
       7|07) 
-        # Panggil logic status perkhidmatan dari script Anda
         title_banner
         echo -e "${PURPLE}${BOLD}Status Perkhidmatan:${RESET}"
         echo -e "${FULL_BORDER}"
