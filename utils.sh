@@ -32,11 +32,11 @@ SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
 # ASCII Art yang Lebih Rapi & Simetris
 # ASCII Art Simetris, Modern & Rata Tengah
 TITLE_ART="
-${DARK_BLUE}           ╔══════════════════════════════════════════════╗${RESET}
-${DARK_BLUE}           ${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}${RESET}
-${DARK_BLUE}           ${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}${RESET}
-${DARK_BLUE}           ${LIGHT_CYAN}      ████     ████     ████     ████    ${DARK_BLUE}${RESET}
-${DARK_BLUE}           ╚══════════════════════════════════════════════╝${RESET}
+${DARK_BLUE}      ╔══════════════════════════════════════════════╗${RESET}
+${DARK_BLUE}      ${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}${RESET}
+${DARK_BLUE}      ${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}${RESET}
+${DARK_BLUE}      ${LIGHT_CYAN}      ████     ████     ████     ████    ${DARK_BLUE}${RESET}
+${DARK_BLUE}      ╚══════════════════════════════════════════════╝${RESET}
 ${PURPLE}${BOLD}                    ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
 "
 
