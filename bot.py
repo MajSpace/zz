@@ -80,15 +80,15 @@ def start(update, context):
 @restricted
 def menu(update, context):
     msg = (
-        "╔═════════════════════╗\n"
+        "═════════════════════\n"
         "   👑 *Sistem Pengurusan VPN MajSpace* 👑\n"
-        "╠═════════════════════╣\n"
+        "═════════════════════\n"
         "• /buatuser - 🛡️ Cipta akaun VPN baru\n"
         "• /padamuser - 🗑️ Padam akaun user\n"
         "• /senarai  - 👥 Senarai pengguna aktif\n"
         "• /status   - 🏢 Status perkhidmatan server\n"
         "• /bantuan  - 📖 Manual penggunaan bot\n"
-        "╚═════════════════════╝\n"
+        "═════════════════════\n"
         "\n*Selamat datang! Sila pilih arahan di atas untuk bermula.*"
     )
     update.message.reply_text(
@@ -112,9 +112,9 @@ def buatuser(update, context):
     reply_keyboard = [[k] for k, v in protocols]
     update.message.reply_text(
         "🛡️ *Sila pilih protokol akaun yang ingin dicipta:*\n"
-        "┏━━━━━━━━━━━━━━━━━━━━━━┓\n"
-        "┃ SSH, OpenVPN, VMess, VLESS, Hysteria2     ┃\n"
-        "┗━━━━━━━━━━━━━━━━━━━━━━┛",
+        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        " SSH, OpenVPN, VMess, VLESS, Hysteria2 \n"
+        "━━━━━━━━━━━━━━━━━━━━━━",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
