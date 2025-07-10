@@ -37,7 +37,7 @@ ${DARK_BLUE}        ${LIGHT_CYAN}      ████     ████     ██�
 ${DARK_BLUE}        ${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}${RESET}
 ${DARK_BLUE}        ${LIGHT_CYAN}      ████     ████     ████     ████    ${DARK_BLUE}${RESET}
 ${DARK_BLUE}      ╚══════════════════════════════════════════════╝${RESET}
-${PURPLE}${BOLD}                    ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
+${PURPLE}${BOLD}                  ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
 "
 
 # Papar tajuk dengan maklumat sistem
