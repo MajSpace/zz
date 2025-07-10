@@ -80,15 +80,15 @@ def start(update, context):
 @restricted
 def menu(update, context):
     msg = (
-        "═════════════════════\n"
+        "══════════════\n"
         "   👑 *Sistem Pengurusan VPN MajSpace* 👑\n"
-        "═════════════════════\n"
+        "══════════════\n"
         "• /buatuser - 🛡️ Cipta akaun VPN baru\n"
         "• /padamuser - 🗑️ Padam akaun user\n"
         "• /senarai  - 👥 Senarai pengguna aktif\n"
         "• /status   - 🏢 Status perkhidmatan server\n"
         "• /bantuan  - 📖 Manual penggunaan bot\n"
-        "═════════════════════\n"
+        "══════════════\n"
         "\n*Selamat datang! Sila pilih arahan di atas untuk bermula.*"
     )
     update.message.reply_text(
@@ -112,9 +112,9 @@ def buatuser(update, context):
     reply_keyboard = [[k] for k, v in protocols]
     update.message.reply_text(
         "🛡️ *Sila pilih protokol akaun yang ingin dicipta:*\n"
-        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "━━━━━━━━━━━━━━━\n"
         " SSH, OpenVPN, VMess, VLESS, Hysteria2 \n"
-        "━━━━━━━━━━━━━━━━━━━━━━",
+        "━━━━━━━━━━━━━━━",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
@@ -210,12 +210,12 @@ def masukkan_hari(update, context):
     reply_keyboard = [["✅ YA", "❌ BATAL"]]
     msg = (
         f"💾 *Sila Sahkan Maklumat Akaun:*\n"
-        f"┏━━━━━━━━━━━━━━━━━━┓\n"
+        f"┏━━━━━━━━━━\n"
         f"┣ Protokol : {protocol_dict[proto]}\n"
         f"┣ Nama Pengguna : `{username}`\n"
         f"┣ Kata Laluan : {'(Rawak)' if password == '-' else password}\n"
         f"┣ Tempoh Aktif : {days} hari\n"
-        f"┗━━━━━━━━━━━━━━━━━━┛\n\n"
+        f"┗━━━━━━━━━━\n\n"
         "Tekan *YA* untuk cipta, *BATAL* untuk batal."
     )
     update.message.reply_text(
@@ -249,11 +249,11 @@ def sahkan_cipta(update, context):
         run_bash(cmd)
         msg = (
             "✅ *Pengguna SSH berjaya dicipta!*\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"👤 *Nama Pengguna:* `{username}`\n"
             f"🔑 *Kata Laluan:* `{passwd_arg}`\n"
             f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"🌐 *Alamat IP:* `{IP}`\n"
             f"🌍 *Domain:* `{DOMAIN}`\n"
             f"🔒 *SSL/TLS:* `444, 777`\n"
@@ -307,11 +307,11 @@ key-direction 1
             config_urls.append(f"http://{IP}/client-{username}-{mode}.ovpn")
         msg = (
             "✅ *Pengguna OpenVPN berjaya dicipta!*\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"👤 *Nama Pengguna:* `{username}`\n"
             f"🔑 *Kata Laluan:* `{passwd_arg}`\n"
             f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"🌐 *Alamat IP:* `{IP}`\n"
             f"🌍 *Domain:* `{DOMAIN}`\n"
             "\n*Link config OVPN:*\n"
@@ -380,14 +380,14 @@ key-direction 1
 
             msg = (
                 "✅ *Akaun VMess berjaya dicipta!*\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 f"👤 *Nama Pengguna:* `{username}`\n"
                 f"🆔 *UUID:* `{uuid}`\n"
                 f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 f"🌍 *Domain:* `{DOMAIN}`\n"
                 f"🌐 *IP:* `{IP}`\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 "*Link VMess:*\n"
                 f"• TLS (443 WS):\n`{vmess_tls}`\n"
                 f"• nTLS (80 WS):\n`{vmess_ntls}`\n"
@@ -402,14 +402,14 @@ key-direction 1
             vless_grpc = f"vless://{uuid}@{DOMAIN}:443?mode=gun&security=tls&encryption=none&type=grpc&serviceName=vless-grpc&sni={DOMAIN}#{username}"
             msg = (
                 "✅ *Akaun VLESS berjaya dicipta!*\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 f"👤 *Nama Pengguna:* `{username}`\n"
                 f"🆔 *UUID:* `{uuid}`\n"
                 f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 f"🌍 *Domain:* `{DOMAIN}`\n"
                 f"🌐 *IP:* `{IP}`\n"
-                "━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━\n"
                 "*Link VLESS:*\n"
                 f"• TLS (443 WS):\n`{vless_tls}`\n"
                 f"• nTLS (80 WS):\n`{vless_ntls}`\n"
@@ -429,14 +429,14 @@ key-direction 1
         link = f"hysteria2://{username}:{passwd_arg}@{DOMAIN}:8443"
         msg = (
             "✅ *Akaun Hysteria2 berjaya dicipta!*\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"👤 *Nama Pengguna:* `{username}`\n"
             f"🔑 *Kata Laluan:* `{passwd_arg}`\n"
             f"⏳ *Tamat Tempoh:* `{exp_date}`\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"🌍 *Domain:* `{DOMAIN}`\n"
             f"🌐 *IP:* `{IP}`\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "━━━━━━━━━━━━━━━\n"
             f"*Link Hysteria2:*\n`{link}`\n"
         )
         update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
@@ -559,7 +559,7 @@ def sahkan_padam_user(update, context):
 def senarai(update, context):
     msg = (
         "👥 *Senarai Pengguna Aktif:*\n"
-        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "━━━━━━━━━━━━━━━\n"
     )
     ssh_users = run_bash("awk -F: '($3>=1000)&&($7==\"/bin/bash\"){print $1}' /etc/passwd")
     msg += f"*SSH:*\n{ssh_users or 'Tiada'}"
@@ -590,7 +590,7 @@ def status(update, context):
     out = run_bash(cmd)
     msg = (
         "🏢 *Status Perkhidmatan:*\n"
-        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "━━━━━━━━━━━━━━━\n"
     )
     lines = out.strip().split('\n')
     for idx, svc in enumerate(nama.keys()):
