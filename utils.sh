@@ -1,77 +1,60 @@
 #!/bin/bash
 
-# Palet Warna yang Diperkaya untuk menu baru
+# Palet Warna Modern
 PURPLE="\033[1;35m"
 DARK_BLUE="\033[0;34m"
 LIGHT_CYAN="\033[1;36m"
 BRIGHT_GREEN="\033[1;92m"
 RED="\033[1;31m"
 YELLOW="\033[1;33m"
+GREEN="\033[0;32m"
 WHITE="\033[1;37m"
 GRAY="\033[0;37m"
 BOLD="\033[1m"
 UNDERLINE="\033[4m"
-BG_CYAN="\033[46m"
+BG_CYAN="\033[1;46m"
 BG_PURPLE="\033[45m"
-RESET="\033[0m"
-
-# Warna tambahan untuk tampilan menu baru
 BGAQUA="\033[1;46m"
 BGRED="\033[1;41m"
 AQUA="\033[1;36m"
 NC="\033[0m"
+RESET="\033[0m"
 
-# Info sistem
+# Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
 HYSTERIA_CONFIG="/etc/hysteria/hysteria2.yaml"
 DOMAIN=$(cat /etc/xray/domain.conf 2>/dev/null || echo "Tidak Tersedia")
 IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
-UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
 CITY=$(curl -s ipinfo.io/city 2>/dev/null || echo "Tidak Tersedia")
+UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
 
+# Sempadan Dekoratif
 FULL_BORDER="${YELLOW}═════════════════════════════════════════════════════════════${NC}"
 SHORT_BORDER="${DARK_BLUE}┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅${NC}"
 SECTION_DIVIDER="${GRAY}----------------------------------------${NC}"
 
-# Fungsi header baru untuk reuse di sub menu
-header_info() {
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+# Header Sistem Info (gaya baru)
+title_banner() {
+  clear
+  echo -e "${FULL_BORDER}"
   echo -e "${BGAQUA}                     SISTEM INFORMATION                      ${NC}"
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+  echo -e "${FULL_BORDER}"
   echo -e "${GREEN}ISP                  :${NC}  $ISP"
   echo -e "${GREEN}Domain               :${NC}  $DOMAIN"
   echo -e "${GREEN}IP Address           :${NC}  $IP"
   echo -e "${GREEN}Location             :${NC}  $CITY"
   echo -e "${GREEN}System Uptime        :${NC}  $UPTIME"
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+  echo -e "${FULL_BORDER}"
+  echo
 }
 
-header_service_status() {
-  echo -e "${BGRED}                        SERVICE STATUS                       ${NC}"
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-  state_nginx=$(systemctl is-active nginx)
-  state_xray=$(systemctl is-active xray)
-  state_ws=$(systemctl is-active ws-python-proxy)
-  state_openvpn=$(systemctl is-active openvpn@server-udp-1194)
-  state_hysteria=$(systemctl is-active hysteria2)
-  echo -e "  NGINX = $state_nginx   XRAY = $state_xray   WS-SSH = $state_ws   OPENVPN = $state_openvpn   HYSTERIA2 = $state_hysteria"
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-}
-
-header_menu_title() {
-  echo -e "${BGAQUA}                         MENU MANAGER                        ${NC}"
-  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-}
-
-# Fungsi berhenti
 pause() {
   read -n 1 -s -r -p "$(echo -e "${GRAY}Tekan sebarang kekunci untuk kembali...${RESET}")"
   echo
 }
 
-# Animasi Memuat yang Diperkaya
 loading_animation() {
   local msg=$1
   echo -ne "${YELLOW}${msg} ["
@@ -82,33 +65,28 @@ loading_animation() {
   echo -e "] ${BRIGHT_GREEN}Selesai!${RESET}"
 }
 
-# Senarai pengguna SSH
 list_ssh_users() {
   awk -F: '($3>=1000)&&($7=="/bin/bash"){print $1}' /etc/passwd
 }
 
-# Senarai pengguna Xray
 list_xray_users() {
   if [[ -f "$XRAY_CONFIG" ]]; then
     jq -r '.inbounds[].settings.clients[]? | select(.email != null) | .email' "$XRAY_CONFIG" | sort | uniq
   fi
 }
 
-# Senarai pengguna OpenVPN
 list_openvpn_users() {
   if [[ -f "/var/log/ovpn-users.log" ]]; then
     awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}' /var/log/ovpn-users.log
   fi
 }
 
-# Senarai pengguna Hysteria2
 list_hysteria_users() {
   if [[ -f "/var/log/hysteria-users.log" ]]; then
     awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1}' /var/log/hysteria-users.log
   fi
 }
 
-# Sahkan nama pengguna (tidak kosong dan tidak berulang)
 validate_username() {
   local username=$1
   local type=$2
@@ -149,7 +127,6 @@ validate_username() {
   return 0
 }
 
-# Sahkan input hari
 validate_days() {
   local days=$1
   if [[ ! "$days" =~ ^[0-9]+$ ]] || [[ "$days" -le 0 ]]; then
@@ -159,13 +136,11 @@ validate_days() {
   return 0
 }
 
-# Generate random password
 generate_password() {
   local length=${1:-12}
   openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
 }
 
-# Papar port OpenVPN
 show_openvpn_ports() {
   echo -e "${PURPLE}${BOLD}Port Perkhidmatan OpenVPN:${RESET}"
   echo -e "${YELLOW}  UDP Standard:      ${LIGHT_CYAN}1194${RESET}"
@@ -175,7 +150,6 @@ show_openvpn_ports() {
   echo -e "${SHORT_BORDER}"
 }
 
-# Papar maklumat Hysteria2
 show_hysteria_info() {
   echo -e "${PURPLE}${BOLD}Maklumat Perkhidmatan Hysteria2:${RESET}"
   echo -e "${YELLOW}  Port:              ${LIGHT_CYAN}8443 (UDP)${RESET}"
