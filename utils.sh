@@ -25,22 +25,26 @@ ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
 UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
 
 # Sempadan Dekoratif
-FULL_BORDER="${PURPLE}╾━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╼${RESET}"
-SHORT_BORDER="${DARK_BLUE}┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅${RESET}"
-SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
-
-# ASCII Art yang Diperbarui dengan Kesan Gradasi
+# Tajuk Art Baru yang Lebih Simple dan Boleh Center
 TITLE_ART="
-${DARK_BLUE}                ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
-${LIGHT_CYAN}                ║    ║ ║    ║ ║    ║ ║    ║${RESET}
-${DARK_BLUE}                ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
-${PURPLE}                   MAJ SPACE SCRIPT${RESET}
+${PURPLE}${BOLD}╔═══════════════════════════════════════════╗${RESET}
+${PURPLE}${BOLD}║                                           ║${RESET}
+${PURPLE}${BOLD}║         ${LIGHT_CYAN}${BOLD}MAJ SPACE VPN MANAGER${PURPLE}${BOLD}         ║${RESET}
+${PURPLE}${BOLD}║                                           ║${RESET}
+${PURPLE}${BOLD}╚═══════════════════════════════════════════╝${RESET}
 "
 
-# Papar tajuk dengan maklumat sistem
 title_banner() {
   clear
-  echo -e "${TITLE_ART}"
+  cols=$(tput cols)
+  title_lines=$(echo "$TITLE_ART" | wc -l)
+  pad_lines=$(( ( $(tput lines) / 2 ) - (title_lines / 2) ))
+
+  for ((i=0; i<pad_lines; i++)); do
+    echo
+  done
+
+  echo -e "$TITLE_ART"
   echo -e "${FULL_BORDER}"
   echo -e "${WHITE}${BOLD}Maklumat Sistem:${RESET}"
   echo -e "${SHORT_BORDER}"
