@@ -31,9 +31,10 @@ SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
 
 # ASCII Art yang Diperbarui dengan Kesan Gradasi
 TITLE_ART="
-${PURPLE}${BOLD}╔═══════════════════════════════════════╗${RESET}
-${PURPLE}${BOLD}║          MAJ SPACE SCRIPT             ║${RESET}
-${PURPLE}${BOLD}╚═══════════════════════════════════════╝${RESET}
+${DARK_BLUE}            ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
+${LIGHT_CYAN}            ║    ║ ║    ║ ║    ║ ║    ║${RESET}
+${DARK_BLUE}            ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
+${PURPLE}                   MAJ SPACE SCRIPT${RESET}
 "
 
 # Papar tajuk dengan maklumat sistem
