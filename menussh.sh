@@ -183,6 +183,7 @@ END
           echo -e "${YELLOW}  TCP 1443: ${LIGHT_CYAN}http://$IP/client-${OVPN_USER}-tcp1443.ovpn${RESET}"
           echo -e "${YELLOW}  UDP 2053: ${LIGHT_CYAN}http://$IP/client-${OVPN_USER}-udp2053.ovpn${RESET}"
           echo -e "${YELLOW}  TCP 8080: ${LIGHT_CYAN}http://$IP/client-${OVPN_USER}-tcp8080.ovpn${RESET}"
+          echo -e "${YELLOW}  OHP 8087: ${LIGHT_CYAN}http://$IP/ohp-ovpn-tcp.ovpn${RESET}"
           echo -e "${SECTION_DIVIDER}"
         else
           echo -e "${RED}✘ Ralat: Gagal mencipta pengguna OpenVPN.${RESET}"
