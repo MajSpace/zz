@@ -1,4 +1,4 @@
-Aa#!/bin/bash
+#!/bin/bash
 
 # Palet Warna yang Diperkaya
 PURPLE="\033[1;35m"
