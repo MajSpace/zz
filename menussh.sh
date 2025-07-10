@@ -1,48 +1,36 @@
-# File: MultipleFiles/menussh.sh
 #!/bin/bash
 
-# Source file utilitas global
+# Source file utilitas global dan styling
 source /usr/local/bin/utils.sh
 
-# Sub-Menu SSH
-ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
+ssh_menu_ops() {
   while true; do
-    title_banner
-    echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan SSH & OpenVPN${RESET}"
+    clear
+    header_info
+    header_service_status
+    echo -e "${BGAQUA}                    PENGURUSAN SSH & OPENVPN                   ${NC}"
     echo -e "${FULL_BORDER}"
-    echo -e "${YELLOW}  1. ${WHITE}Cipta Pengguna SSH${RESET}"
-    echo -e "${YELLOW}  2. ${WHITE}Semak Pengguna SSH${RESET}"
-    echo -e "${YELLOW}  3. ${WHITE}Padam Pengguna SSH${RESET}"
-    echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW}  4. ${WHITE}Cipta Pengguna OpenVPN${RESET}"
-    echo -e "${YELLOW}  5. ${WHITE}Semak Pengguna OpenVPN${RESET}"
-    echo -e "${YELLOW}  6. ${WHITE}Padam Pengguna OpenVPN${RESET}"
-    echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW}  7. ${WHITE}Kembali ke Menu Utama${RESET}"
+    echo -e " [${AQUA}01${NC}] Cipta Pengguna SSH         [${AQUA}05${NC}] Cipta Pengguna OpenVPN"
+    echo -e " [${AQUA}02${NC}] Semak Pengguna SSH         [${AQUA}06${NC}] Semak Pengguna OpenVPN"
+    echo -e " [${AQUA}03${NC}] Padam Pengguna SSH         [${AQUA}07${NC}] Padam Pengguna OpenVPN"
+    echo -e " [${AQUA}04${NC}] Kembali ke Menu Utama"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [1-7]: ${RESET}"
-    read opt
+    read -p "[###] Pilih Menu [01-07]: " opt
     case $opt in
-      1) # Cipta Pengguna SSH
-        title_banner
-        echo -e "${PURPLE}${BOLD}Cipta Pengguna SSH${RESET}"
+      1|01) # Cipta Pengguna SSH
+        clear
+        header_info
+        echo -e "${BGAQUA}                     CIPTA PENGGUNA SSH                       ${NC}"
         echo -e "${FULL_BORDER}"
         read -rp "Masukkan nama pengguna SSH: " SSH_USER
-        if ! validate_username "$SSH_USER" "SSH"; then
-          pause
-          continue
-        fi
+        if ! validate_username "$SSH_USER" "SSH"; then pause; continue; fi
         read -rp "Masukkan kata laluan SSH: " SSH_PASS
         if [[ -z "$SSH_PASS" ]]; then
           echo -e "${RED}✘ Ralat: Kata laluan tidak boleh kosong.${RESET}"
-          pause
-          continue
+          pause; continue
         fi
-        read -rp "Berapa lama sah?: " SSH_DAYS
-        if ! validate_days "$SSH_DAYS"; then
-          pause
-          continue
-        fi
+        read -rp "Berapa lama sah (hari)?: " SSH_DAYS
+        if ! validate_days "$SSH_DAYS"; then pause; continue; fi
         loading_animation "Mencipta pengguna SSH"
         if useradd -e $(date -d "$SSH_DAYS days" +"%Y-%m-%d") -m -s /bin/bash "$SSH_USER" 2>/dev/null; then
           echo "$SSH_USER:$SSH_PASS" | chpasswd
@@ -53,7 +41,6 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
           echo -e "${YELLOW}  Nama Pengguna: ${LIGHT_CYAN}$SSH_USER${RESET}"
           echo -e "${YELLOW}  Kata Laluan:   ${LIGHT_CYAN}$SSH_PASS${RESET}"
           echo -e "${YELLOW}  Tamat Tempoh:  ${LIGHT_CYAN}$exp_date${RESET}"
-          echo -e "${SECTION_DIVIDER}"
           echo -e "${YELLOW}  Alamat IP:     ${LIGHT_CYAN}$IP${RESET}"
           echo -e "${YELLOW}  Domain:        ${LIGHT_CYAN}$DOMAIN${RESET}"
           echo -e "${YELLOW}  SSL/TLS:       ${LIGHT_CYAN}444, 777${RESET}"
@@ -65,9 +52,10 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
         fi
         pause
         ;;
-      2) # Semak Pengguna SSH
-        title_banner
-        echo -e "${PURPLE}${BOLD}Senarai Pengguna SSH${RESET}"
+      2|02) # Semak Pengguna SSH
+        clear
+        header_info
+        echo -e "${BGAQUA}                     SENARAI PENGGUNA SSH                      ${NC}"
         echo -e "${FULL_BORDER}"
         mapfile -t SSH_USERS < <(list_ssh_users)
         if [[ ${#SSH_USERS[@]} -eq 0 ]]; then
@@ -82,22 +70,21 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      3) # Padam Pengguna SSH
-        title_banner
-        echo -e "${PURPLE}${BOLD}Padam Pengguna SSH${RESET}"
+      3|03) # Padam Pengguna SSH
+        clear
+        header_info
+        echo -e "${BGAQUA}                     PADAM PENGGUNA SSH                        ${NC}"
         echo -e "${FULL_BORDER}"
         mapfile -t SSH_USERS < <(list_ssh_users)
         if [[ ${#SSH_USERS[@]} -eq 0 ]]; then
           echo -e "${RED}Tiada pengguna SSH ditemui.${RESET}"
-          pause
-          continue
+          pause; continue
         fi
         echo -e "${WHITE}Pilih pengguna SSH untuk dipadam:${RESET}"
         for i in "${!SSH_USERS[@]}"; do
           echo -e "${YELLOW}  $((i+1)). ${WHITE}${SSH_USERS[$i]}${RESET}"
         done
-        echo -ne "${WHITE}Masukkan nombor [1-${#SSH_USERS[@]}]: ${RESET}"
-        read SSH_NUM
+        read -p "Masukkan nombor [1-${#SSH_USERS[@]}]: " SSH_NUM
         if [[ "$SSH_NUM" =~ ^[0-9]+$ ]] && (( SSH_NUM >= 1 && SSH_NUM <= ${#SSH_USERS[@]} )); then
           SSH_USER="${SSH_USERS[$((SSH_NUM-1))]}"
           loading_animation "Memadam pengguna SSH"
@@ -114,26 +101,21 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      4) # Cipta Pengguna OpenVPN
-        title_banner
-        echo -e "${PURPLE}${BOLD}Cipta Pengguna OpenVPN${RESET}"
+      4|04) return ;;
+      5|05) # Cipta Pengguna OpenVPN
+        clear
+        header_info
+        echo -e "${BGAQUA}                    CIPTA PENGGUNA OPENVPN                    ${NC}"
         echo -e "${FULL_BORDER}"
         read -rp "Masukkan nama pengguna OpenVPN: " OVPN_USER
-        if ! validate_username "$OVPN_USER" "OPENVPN"; then
-          pause
-          continue
-        fi
+        if ! validate_username "$OVPN_USER" "OPENVPN"; then pause; continue; fi
         read -rp "Masukkan kata laluan OpenVPN: " OVPN_PASS
         if [[ -z "$OVPN_PASS" ]]; then
           echo -e "${RED}✘ Ralat: Kata laluan tidak boleh kosong.${RESET}"
-          pause
-          continue
+          pause; continue
         fi
-        read -rp "Berapa lama sah?: " OVPN_DAYS
-        if ! validate_days "$OVPN_DAYS"; then
-          pause
-          continue
-        fi
+        read -rp "Berapa lama sah (hari)?: " OVPN_DAYS
+        if ! validate_days "$OVPN_DAYS"; then pause; continue; fi
         loading_animation "Mencipta pengguna OpenVPN"
         if useradd -e $(date -d "$OVPN_DAYS days" +"%Y-%m-%d") -m -s /bin/bash "$OVPN_USER" 2>/dev/null; then
           echo "$OVPN_USER:$OVPN_PASS" | chpasswd
@@ -190,9 +172,10 @@ END
         fi
         pause
         ;;
-      5) # Semak Pengguna OpenVPN
-        title_banner
-        echo -e "${PURPLE}${BOLD}Senarai Pengguna OpenVPN${RESET}"
+      6|06) # Semak Pengguna OpenVPN
+        clear
+        header_info
+        echo -e "${BGAQUA}                    SENARAI PENGGUNA OPENVPN                  ${NC}"
         echo -e "${FULL_BORDER}"
         mapfile -t OVPN_USERS < <(list_openvpn_users)
         if [[ ${#OVPN_USERS[@]} -eq 0 ]]; then
@@ -207,22 +190,21 @@ END
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      6) # Padam Pengguna OpenVPN
-        title_banner
-        echo -e "${PURPLE}${BOLD}Padam Pengguna OpenVPN${RESET}"
+      7|07) # Padam Pengguna OpenVPN
+        clear
+        header_info
+        echo -e "${BGAQUA}                     PADAM PENGGUNA OPENVPN                   ${NC}"
         echo -e "${FULL_BORDER}"
         mapfile -t OVPN_USERS < <(list_openvpn_users)
         if [[ ${#OVPN_USERS[@]} -eq 0 ]]; then
           echo -e "${RED}Tiada pengguna OpenVPN ditemui.${RESET}"
-          pause
-          continue
+          pause; continue
         fi
         echo -e "${WHITE}Pilih pengguna OpenVPN untuk dipadam:${RESET}"
         for i in "${!OVPN_USERS[@]}"; do
           echo -e "${YELLOW}  $((i+1)). ${WHITE}${OVPN_USERS[$i]}${RESET}"
         done
-        echo -ne "${WHITE}Masukkan nombor [1-${#OVPN_USERS[@]}]: ${RESET}"
-        read OVPN_NUM
+        read -p "Masukkan nombor [1-${#OVPN_USERS[@]}]: " OVPN_NUM
         if [[ "$OVPN_NUM" =~ ^[0-9]+$ ]] && (( OVPN_NUM >= 1 && OVPN_NUM <= ${#OVPN_USERS[@]} )); then
           OVPN_USER="${OVPN_USERS[$((OVPN_NUM-1))]}"
           loading_animation "Memadam pengguna OpenVPN"
@@ -240,16 +222,8 @@ END
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      7) # Kembali ke Menu Utama
-        return
-        ;;
-      *)
-        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 1 dan 7.${RESET}"
-        pause
-        ;;
+      *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih angka yang tersedia.${NC}" ; sleep 1 ;;
     esac
   done
 }
-
-# Panggil fungsi menu
 ssh_menu_ops
