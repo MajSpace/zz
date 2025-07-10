@@ -1,4 +1,4 @@
-#!/bin/bash
+Aa#!/bin/bash
 
 # Palet Warna yang Diperkaya
 PURPLE="\033[1;35m"
@@ -33,9 +33,9 @@ SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
 # ASCII Art Simetris, Modern & Rata Tengah
 TITLE_ART="
 ${DARK_BLUE}               ╔══════════════════════════════════════════════╗${RESET}
-${DARK_BLUE}               ║${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}║${RESET}
-${DARK_BLUE}               ║${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}║${RESET}
-${DARK_BLUE}               ║${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}║${RESET}
+${DARK_BLUE}               ${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}${RESET}
+${DARK_BLUE}               ${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}${RESET}
+${DARK_BLUE}               ${LIGHT_CYAN}      ████     ████     ████     ████     ${DARK_BLUE}${RESET}
 ${DARK_BLUE}               ╚══════════════════════════════════════════════╝${RESET}
 ${PURPLE}${BOLD}                    ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
 "
