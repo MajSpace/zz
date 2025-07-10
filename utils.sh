@@ -31,9 +31,9 @@ SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
 
 # ASCII Art yang Diperbarui dengan Kesan Gradasi
 TITLE_ART="
-${DARK_BLUE}                 ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
-${LIGHT_CYAN}                 ║    ║ ║    ║ ║    ║ ║    ║${RESET}
-${DARK_BLUE}                 ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
+${DARK_BLUE}               ╔════╗ ╔════╗ ╔════╗ ╔════╗${RESET}
+${LIGHT_CYAN}               ║    ║ ║    ║ ║    ║ ║    ║${RESET}
+${DARK_BLUE}               ╚════╝ ╚════╝ ╚════╝ ╚════╝${RESET}
 ${PURPLE}                   MAJ SPACE SCRIPT${RESET}
 "
 
