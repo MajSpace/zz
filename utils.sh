@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Palet Warna yang Diperkaya
+# Palet Warna yang Diperkaya untuk menu baru
 PURPLE="\033[1;35m"
 DARK_BLUE="\033[0;34m"
 LIGHT_CYAN="\033[1;36m"
@@ -15,7 +15,13 @@ BG_CYAN="\033[46m"
 BG_PURPLE="\033[45m"
 RESET="\033[0m"
 
-# Laluan Konfigurasi
+# Warna tambahan untuk tampilan menu baru
+BGAQUA="\033[1;46m"
+BGRED="\033[1;41m"
+AQUA="\033[1;36m"
+NC="\033[0m"
+
+# Info sistem
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
 HYSTERIA_CONFIG="/etc/hysteria/hysteria2.yaml"
@@ -23,39 +29,43 @@ DOMAIN=$(cat /etc/xray/domain.conf 2>/dev/null || echo "Tidak Tersedia")
 IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
 UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
+CITY=$(curl -s ipinfo.io/city 2>/dev/null || echo "Tidak Tersedia")
 
-# Sempadan Dekoratif
-FULL_BORDER="${PURPLE}╾━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╼${RESET}"
-SHORT_BORDER="${DARK_BLUE}┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅${RESET}"
-SECTION_DIVIDER="${GRAY}----------------------------------------${RESET}"
+FULL_BORDER="${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+SHORT_BORDER="${DARK_BLUE}┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅${NC}"
+SECTION_DIVIDER="${GRAY}----------------------------------------${NC}"
 
-# ASCII Art yang Lebih Rapi & Simetris
-# ASCII Art Simetris, Modern & Rata Tengah
-TITLE_ART="
-${DARK_BLUE}      ╔══════════════════════════════════════════════╗${RESET}
-${DARK_BLUE}        ${LIGHT_CYAN}      ████     ████     ████     ████       ${DARK_BLUE}${RESET}
-${DARK_BLUE}        ${LIGHT_CYAN}      █  █     █  █     █  █     █  █       ${DARK_BLUE}${RESET}
-${DARK_BLUE}        ${LIGHT_CYAN}      ████     ████     ████     ████    ${DARK_BLUE}${RESET}
-${DARK_BLUE}      ╚══════════════════════════════════════════════╝${RESET}
-${PURPLE}${BOLD}                  ${UNDERLINE}MAJ SPACE SCRIPT MANAGER${RESET}
-"
-
-# Papar tajuk dengan maklumat sistem
-title_banner() {
-  clear
-  echo -e "${TITLE_ART}"
-  echo -e "${FULL_BORDER}"
-  echo -e "${WHITE}${BOLD}Maklumat Sistem:${RESET}"
-  echo -e "${SHORT_BORDER}"
-  echo -e "${YELLOW}  Alamat IP:    ${LIGHT_CYAN}$IP${RESET}"
-  echo -e "${YELLOW}  Domain:       ${LIGHT_CYAN}$DOMAIN${RESET}"
-  echo -e "${YELLOW}  ISP:          ${LIGHT_CYAN}$ISP${RESET}"
-  echo -e "${YELLOW}  Masa Aktif:   ${LIGHT_CYAN}$UPTIME${RESET}"
-  echo -e "${SHORT_BORDER}"
-  echo
+# Fungsi header baru untuk reuse di sub menu
+header_info() {
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+  echo -e "${BGAQUA}                     SISTEM INFORMATION                      ${NC}"
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+  echo -e "${GREEN}ISP                  :${NC}  $ISP"
+  echo -e "${GREEN}Domain               :${NC}  $DOMAIN"
+  echo -e "${GREEN}IP Address           :${NC}  $IP"
+  echo -e "${GREEN}Location             :${NC}  $CITY"
+  echo -e "${GREEN}System Uptime        :${NC}  $UPTIME"
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
 }
 
-# Berhenti dan minta untuk kembali ke menu
+header_service_status() {
+  echo -e "${BGRED}                        SERVICE STATUS                       ${NC}"
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+  state_nginx=$(systemctl is-active nginx)
+  state_xray=$(systemctl is-active xray)
+  state_ws=$(systemctl is-active ws-python-proxy)
+  state_openvpn=$(systemctl is-active openvpn@server-udp-1194)
+  state_hysteria=$(systemctl is-active hysteria2)
+  echo -e "  NGINX = $state_nginx   XRAY = $state_xray   WS-SSH = $state_ws   OPENVPN = $state_openvpn   HYSTERIA2 = $state_hysteria"
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+}
+
+header_menu_title() {
+  echo -e "${BGAQUA}                         MENU MANAGER                        ${NC}"
+  echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+}
+
+# Fungsi berhenti
 pause() {
   read -n 1 -s -r -p "$(echo -e "${GRAY}Tekan sebarang kekunci untuk kembali...${RESET}")"
   echo
