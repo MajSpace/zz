@@ -163,3 +163,60 @@ show_hysteria_info() {
   echo -e "${YELLOW}  Congestion Control:${LIGHT_CYAN}BBR${RESET}"
   echo -e "${SHORT_BORDER}"
 }
+
+# Fungsi untuk menyemak sama ada port sah (nombor, julat)
+validate_port() {
+  local port=$1
+  if ! [[ "$port" =~ ^[0-9]+$ ]]; then
+    echo -e "${RED}✘ Ralat: Port mesti nombor.${RESET}"
+    return 1
+  fi
+  if (( port < 1 || port > 65535 )); then
+    echo -e "${RED}✘ Ralat: Port mesti dalam julat 1 hingga 65535.${RESET}"
+    return 1
+  fi
+  return 0
+}
+
+# Fungsi untuk menyemak sama ada port sedang digunakan
+is_port_in_use() {
+  local port=$1
+  # Semak TCP
+  if ss -tuln | grep -q ":$port\b"; then
+    echo -e "${RED}✘ Ralat: Port $port (TCP) sedang digunakan.${RESET}"
+    return 0
+  fi
+  # Semak UDP
+  if ss -uln | grep -q ":$port\b"; then
+    echo -e "${RED}✘ Ralat: Port $port (UDP) sedang digunakan.${RESET}"
+    return 0
+  fi
+  return 1 # Port tidak digunakan
+}
+
+# Fungsi untuk mengemas kini peraturan iptables
+update_iptables_rule() {
+  local old_port=$1
+  local new_port=$2
+  local protocol=$3 # tcp atau udp
+
+  # Padam peraturan lama
+  iptables -D INPUT -p "$protocol" --dport "$old_port" -j ACCEPT 2>/dev/null
+  # Tambah peraturan baru
+  iptables -I INPUT -p "$protocol" --dport "$new_port" -j ACCEPT
+
+  # Simpan peraturan
+  iptables-save > /etc/iptables.up.rules
+  netfilter-persistent save > /dev/null 2>&1
+}
+
+# Fungsi untuk mengemas kini peraturan ufw
+update_ufw_rule() {
+  local old_port=$1
+  local new_port=$2
+  local protocol=$3 # tcp atau udp
+
+  ufw delete allow "$old_port"/"$protocol" 2>/dev/null
+  ufw allow "$new_port"/"$protocol" 2>/dev/null
+  ufw reload > /dev/null 2>&1
+}
