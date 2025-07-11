@@ -4,250 +4,6 @@
 # Source file utilitas global
 source /usr/local/bin/utils.sh
 
-# Fungsi untuk mengubah port SSH (OpenSSH)
-change_ssh_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Ubah Port SSH (OpenSSH)${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  local current_port=$(grep -E "^Port " /etc/ssh/sshd_config | awk '{print $2}' | head -n 1)
-  echo -e "${YELLOW}Port SSH semasa: ${LIGHT_CYAN}$current_port${RESET}"
-  read -rp "Masukkan port SSH baru (cth: 2222): " new_port
-
-  if ! validate_port "$new_port"; then
-    pause
-    return
-  fi
-  if ! is_port_in_use "$new_port"; then
-    pause
-    return
-  fi
-
-  loading_animation "Mengubah port SSH ke $new_port"
-
-  # Ubah dalam fail konfigurasi
-  sed -i "s/^Port ${current_port}/Port ${new_port}/" /etc/ssh/sshd_config
-
-  # Kemas kini firewall
-  update_iptables_rule "$current_port" "$new_port" "tcp"
-  update_ufw_rule "$current_port" "$new_port" "tcp"
-
-  # Restart perkhidmatan
-  systemctl restart ssh 2>/dev/null
-
-  echo -e "${BRIGHT_GREEN}✔ Port SSH berjaya diubah dari ${current_port} ke ${new_port}.${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
-# Fungsi untuk mengubah port Dropbear
-change_dropbear_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Ubah Port Dropbear${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  local current_port1=$(grep -E "^DROPBEAR_PORT=" /etc/default/dropbear | cut -d'=' -f2)
-  local current_port2=$(grep -E "^DROPBEAR_EXTRA_ARGS=" /etc/default/dropbear | grep -oP '\-p \K\d+' | head -n 1)
-
-  echo -e "${YELLOW}Port Dropbear semasa: ${LIGHT_CYAN}$current_port1, $current_port2${RESET}"
-  read -rp "Masukkan port utama Dropbear baru (cth: 1099): " new_port1
-  read -rp "Masukkan port tambahan Dropbear baru (cth: 1433): " new_port2
-
-  if ! validate_port "$new_port1" || ! validate_port "$new_port2"; then
-    pause
-    return
-  fi
-  if ! is_port_in_use "$new_port1" || ! is_port_in_use "$new_port2"; then
-    pause
-    return
-  fi
-  if [[ "$new_port1" == "$new_port2" ]]; then
-    echo -e "${RED}✘ Ralat: Port utama dan tambahan tidak boleh sama.${RESET}"
-    pause
-    return
-  fi
-
-  loading_animation "Mengubah port Dropbear"
-
-  # Ubah dalam fail konfigurasi
-  sed -i "s/^DROPBEAR_PORT=${current_port1}/DROPBEAR_PORT=${new_port1}/" /etc/default/dropbear
-  sed -i "s/DROPBEAR_EXTRA_ARGS=\"-p ${current_port2}\"/DROPBEAR_EXTRA_ARGS=\"-p ${new_port2}\"/" /etc/default/dropbear
-
-  # Kemas kini firewall
-  update_iptables_rule "$current_port1" "$new_port1" "tcp"
-  update_ufw_rule "$current_port1" "$new_port1" "tcp"
-  update_iptables_rule "$current_port2" "$new_port2" "tcp"
-  update_ufw_rule "$current_port2" "$new_port2" "tcp"
-
-  # Restart perkhidmatan
-  systemctl restart dropbear 2>/dev/null
-
-  echo -e "${BRIGHT_GREEN}✔ Port Dropbear berjaya diubah dari ${current_port1}, ${current_port2} ke ${new_port1}, ${new_port2}.${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
-# Fungsi untuk mengubah port Stunnel4
-change_stunnel_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Ubah Port Stunnel4${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  local current_ssh_port=$(grep -A1 "\$ssh\$" /etc/stunnel/stunnel.conf | grep "accept" | awk '{print $3}')
-  local current_dropbear_port=$(grep -A1 "\$dropbear\$" /etc/stunnel/stunnel.conf | grep "accept" | awk '{print $3}')
-  local current_openvpn_port=$(grep -A1 "\$openvpn-ssl\$" /etc/stunnel/stunnel.conf | grep "accept" | awk '{print $3}')
-
-  echo -e "${YELLOW}Port Stunnel4 semasa:${RESET}"
-  echo -e "${YELLOW}  SSH: ${LIGHT_CYAN}$current_ssh_port${RESET}"
-  echo -e "${YELLOW}  Dropbear: ${LIGHT_CYAN}$current_dropbear_port${RESET}"
-  echo -e "${YELLOW}  OpenVPN-SSL: ${LIGHT_CYAN}$current_openvpn_port${RESET}"
-
-  read -rp "Masukkan port Stunnel4 untuk SSH baru (cth: 4444): " new_ssh_port
-  read -rp "Masukkan port Stunnel4 untuk Dropbear baru (cth: 7777): " new_dropbear_port
-  read -rp "Masukkan port Stunnel4 untuk OpenVPN-SSL baru (cth: 9922): " new_openvpn_port
-
-  if ! validate_port "$new_ssh_port" || ! validate_port "$new_dropbear_port" || ! validate_port "$new_openvpn_port"; then
-    pause
-    return
-  fi
-  if ! is_port_in_use "$new_ssh_port" || ! is_port_in_use "$new_dropbear_port" || ! is_port_in_use "$new_openvpn_port"; then
-    pause
-    return
-  fi
-
-  loading_animation "Mengubah port Stunnel4"
-
-  # Ubah dalam fail konfigurasi
-  sed -i "s/accept = ${current_ssh_port}/accept = ${new_ssh_port}/" /etc/stunnel/stunnel.conf
-  sed -i "s/accept = ${current_dropbear_port}/accept = ${new_dropbear_port}/" /etc/stunnel/stunnel.conf
-  sed -i "s/accept = ${current_openvpn_port}/accept = ${new_openvpn_port}/" /etc/stunnel/stunnel.conf
-
-  # Kemas kini firewall
-  update_iptables_rule "$current_ssh_port" "$new_ssh_port" "tcp"
-  update_ufw_rule "$current_ssh_port" "$new_ssh_port" "tcp"
-  update_iptables_rule "$current_dropbear_port" "$new_dropbear_port" "tcp"
-  update_ufw_rule "$current_dropbear_port" "$new_dropbear_port" "tcp"
-  update_iptables_rule "$current_openvpn_port" "$new_openvpn_port" "tcp"
-  update_ufw_rule "$current_openvpn_port" "$new_openvpn_port" "tcp"
-
-  # Restart perkhidmatan
-  systemctl restart stunnel4 2>/dev/null
-
-  echo -e "${BRIGHT_GREEN}✔ Port Stunnel4 berjaya diubah.${RESET}"
-  echo -e "${YELLOW}  SSH: ${current_ssh_port} -> ${new_ssh_port}${RESET}"
-  echo -e "${YELLOW}  Dropbear: ${current_dropbear_port} -> ${new_dropbear_port}${RESET}"
-  echo -e "${YELLOW}  OpenVPN-SSL: ${current_openvpn_port} -> ${new_openvpn_port}${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
-# Fungsi untuk mengubah port OpenVPN
-change_openvpn_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Ubah Port OpenVPN${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  echo -e "${WHITE}Pilih konfigurasi OpenVPN untuk diubah portnya:${RESET}"
-  echo -e "${YELLOW}  1. ${WHITE}UDP 1194${RESET}"
-  echo -e "${YELLOW}  2. ${WHITE}TCP 1443${RESET}"
-  echo -e "${YELLOW}  3. ${WHITE}UDP 2053${RESET}"
-  echo -e "${YELLOW}  4. ${WHITE}TCP 8080${RESET}"
-  echo -e "${YELLOW}  5. ${WHITE}TCP 1194 (jika ada)${RESET}"
-  echo -e "${YELLOW}  0. ${WHITE}Batal${RESET}"
-  echo -ne "${WHITE}Pilih pilihan [0-5]: ${RESET}"
-  read ovpn_choice
-
-  local config_file=""
-  local current_port=""
-  local protocol=""
-  local service_name=""
-
-  case $ovpn_choice in
-    1) config_file="/etc/openvpn/server-udp-1194.conf"; current_port="1194"; protocol="udp"; service_name="openvpn@server-udp-1194" ;;
-    2) config_file="/etc/openvpn/server-tcp-443.conf"; current_port="1443"; protocol="tcp"; service_name="openvpn@server-tcp-443" ;;
-    3) config_file="/etc/openvpn/server-udp-53.conf"; current_port="2053"; protocol="udp"; service_name="openvpn@server-udp-53" ;;
-    4) config_file="/etc/openvpn/server-tcp-80.conf"; current_port="8080"; protocol="tcp"; service_name="openvpn@server-tcp-80" ;;
-    5) config_file="/etc/openvpn/server-tcp-1194.conf"; current_port="1194"; protocol="tcp"; service_name="openvpn@server-tcp-1194" ;;
-    0) echo -e "${YELLOW}Pembatalan diubah port.${RESET}"; pause; return ;;
-    *) echo -e "${RED}✘ Pilihan tidak sah.${RESET}"; pause; return ;;
-  esac
-
-  if [[ ! -f "$config_file" ]]; then
-    echo -e "${RED}✘ Ralat: Fail konfigurasi OpenVPN tidak ditemui untuk pilihan ini.${RESET}"
-    pause
-    return
-  fi
-
-  read -rp "Masukkan port baru untuk ${protocol^^} ${current_port}: " new_port
-
-  if ! validate_port "$new_port"; then
-    pause
-    return
-  fi
-  if ! is_port_in_use "$new_port"; then
-    pause
-    return
-  fi
-
-  loading_animation "Mengubah port OpenVPN ${protocol^^} ${current_port} ke ${new_port}"
-
-  # Ubah dalam fail konfigurasi
-  sed -i "s/^port ${current_port}/port ${new_port}/" "$config_file"
-  sed -i "s/^proto ${protocol}/proto ${protocol}/" "$config_file" # Pastikan proto tidak berubah
-
-  # Kemas kini firewall
-  update_iptables_rule "$current_port" "$new_port" "$protocol"
-  update_ufw_rule "$current_port" "$new_port" "$protocol"
-
-  # Restart perkhidmatan
-  systemctl restart "$service_name" 2>/dev/null
-
-  echo -e "${BRIGHT_GREEN}✔ Port OpenVPN ${protocol^^} berjaya diubah dari ${current_port} ke ${new_port}.${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
-# Fungsi untuk mengubah port SSH WebSocket Python Proxy
-change_ws_proxy_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Ubah Port SSH WebSocket Python Proxy${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  local current_port=$(grep -oP '\-p \K\d+' /etc/systemd/system/ws-python-proxy.service | head -n 1)
-  echo -e "${YELLOW}Port SSH WS Proxy semasa: ${LIGHT_CYAN}$current_port${RESET}"
-  read -rp "Masukkan port SSH WS Proxy baru (cth: 8888): " new_port
-
-  if ! validate_port "$new_port"; then
-    pause
-    return
-  fi
-  if ! is_port_in_use "$new_port"; then
-    pause
-    return
-  fi
-
-  loading_animation "Mengubah port SSH WS Proxy ke $new_port"
-
-  # Ubah dalam fail konfigurasi systemd service
-  sed -i "s/\-p ${current_port}/\-p ${new_port}/" /etc/systemd/system/ws-python-proxy.service
-
-  # Ubah dalam fail proxy.py (jika ada hardcode, walaupun sepatutnya dari argumen)
-  # Ini adalah langkah berjaga-jaga jika ada hardcode di dalam proxy.py
-  sed -i "s/LISTENING_PORT = ${current_port}/LISTENING_PORT = ${new_port}/" /usr/local/proxy.py 2>/dev/null
-
-  # Kemas kini firewall
-  update_iptables_rule "$current_port" "$new_port" "tcp"
-  update_ufw_rule "$current_port" "$new_port" "tcp"
-
-  # Reload daemon dan restart perkhidmatan
-  systemctl daemon-reload > /dev/null 2>&1
-  systemctl restart ws-python-proxy 2>/dev/null
-
-  echo -e "${BRIGHT_GREEN}✔ Port SSH WebSocket Python Proxy berjaya diubah dari ${current_port} ke ${new_port}.${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
 # Sub-Menu SSH
 ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
   while true; do
@@ -262,15 +18,9 @@ ssh_menu_ops() { # Mengganti nama fungsi agar tidak bentrok dengan nama file
     echo -e "${YELLOW}  5. ${WHITE}Semak Pengguna OpenVPN${RESET}"
     echo -e "${YELLOW}  6. ${WHITE}Padam Pengguna OpenVPN${RESET}"
     echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW}  7. ${WHITE}Ubah Port SSH (OpenSSH)${RESET}"
-    echo -e "${YELLOW}  8. ${WHITE}Ubah Port Dropbear${RESET}"
-    echo -e "${YELLOW}  9. ${WHITE}Ubah Port Stunnel4${RESET}"
-    echo -e "${YELLOW} 10. ${WHITE}Ubah Port OpenVPN${RESET}"
-    echo -e "${YELLOW} 11. ${WHITE}Ubah Port SSH WS Python Proxy${RESET}"
-    echo -e "${SECTION_DIVIDER}"
-    echo -e "${YELLOW} 12. ${WHITE}Kembali ke Menu Utama${RESET}"
+    echo -e "${YELLOW}  7. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
-    echo -ne "${WHITE}Pilih pilihan [1-12]: ${RESET}"
+    echo -ne "${WHITE}Pilih pilihan [1-7]: ${RESET}"
     read opt
     case $opt in
       1) # Cipta Pengguna SSH
@@ -492,16 +242,11 @@ END
         echo -e "${FULL_BORDER}"
         pause
         ;;
-      7) change_ssh_port ;;
-      8) change_dropbear_port ;;
-      9) change_stunnel_port ;;
-      10) change_openvpn_port ;;
-      11) change_ws_proxy_port ;;
-      12) # Kembali ke Menu Utama
+      7) # Kembali ke Menu Utama
         return
         ;;
       *)
-        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 1 dan 12.${NC}"
+        echo -e "${RED}✘ Pilihan tidak sah. Pilih nombor antara 1 dan 7.${RESET}"
         pause
         ;;
     esac
