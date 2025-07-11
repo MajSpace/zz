@@ -18,12 +18,15 @@ is_port_available() {
 }
 
 # Fungsi untuk mendapatkan port semasa
+# Fungsi untuk mendapatkan port semasa
 get_current_ports() {
   local service=$1
   case "$service" in
     "dropbear")
-      local port1=$(grep "DROPBEAR_PORT" /etc/default/dropbear | cut -d'=' -f2 | xargs)
-      local port2=$(grep "DROPBEAR_EXTRA_ARGS" /etc/default/dropbear | awk -F'-p ' '{print $2}' | awk '{print $1}' | xargs)
+      # Ambil DROPBEAR_PORT
+      local port1=$(grep -oP '(?<=^DROPBEAR_PORT=)[0-9]+' /etc/default/dropbear | xargs)
+      # Ambil port dari DROPBEAR_EXTRA_ARGS, pastikan hanya angka
+      local port2=$(grep -oP '(?<=DROPBEAR_EXTRA_ARGS=".*-p )[0-9]+' /etc/default/dropbear | xargs)
       echo "$port1 $port2"
       ;;
     "stunnel")
@@ -31,7 +34,8 @@ get_current_ports() {
       echo "$ports"
       ;;
     "ssh_ws_proxy")
-      local port=$(grep "LISTENING_PORT" /usr/local/proxy.py | awk '{print $3}' | xargs)
+      # Gunakan grep -oP untuk mengambil hanya angka setelah LISTENING_PORT =
+      local port=$(grep -oP '(?<=^LISTENING_PORT = )[0-9]+' /usr/local/proxy.py | xargs)
       echo "$port"
       ;;
     "openvpn_udp_1194")
