@@ -62,6 +62,7 @@ function status_bot() {
 
 telegram_bot_menu() {
   while true; do
+    title_banner
     echo -e "${PURPLE}${BOLD}${UNDERLINE}Pengurusan Bot Telegram${RESET}"
     echo -e "${FULL_BORDER}"
     echo -e "${YELLOW}  1. ${WHITE}Tetapan TOKEN${RESET}"

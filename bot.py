@@ -67,7 +67,7 @@ def run_bash(command):
         return e.output
 
 def is_valid_username(username):
-    return bool(re.match(r'^[a-zA-Z0-9_-]{3,32}$', username))
+    return bool(re.match(r'^[a-zA-Z0-9_-]{2,32}$', username))
 
 def is_valid_days(days):
     return days.isdigit() and 1 <= int(days) <= 365
@@ -131,13 +131,13 @@ def pilih_protocol(update, context):
         update.message.reply_text("⛔️ Pilihan tidak sah. Sila pilih menggunakan butang yang tersedia.")
         return PILIH_PROTOCOL
     context.user_data['protocol'] = proto
-    update.message.reply_text("✍️ Masukkan nama pengguna (3-32 huruf):", reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text("✍️ Masukkan nama pengguna (2-32 huruf):", reply_markup=ReplyKeyboardRemove())
     return MASUKKAN_USERNAME
 
 def masukkan_username(update, context):
     username = update.message.text.strip()
     if not is_valid_username(username):
-        update.message.reply_text("⛔️ Nama pengguna tidak sah. Gunakan (3-32 huruf).")
+        update.message.reply_text("⛔️ Nama pengguna tidak sah. Gunakan (2-32 huruf).")
         return MASUKKAN_USERNAME
 
     proto = context.user_data['protocol']
@@ -175,11 +175,11 @@ def masukkan_username(update, context):
 
 def masukkan_password(update, context):
     passwd = update.message.text.strip()
-    if passwd == '-' or len(passwd) >= 3:
+    if passwd == '-' or len(passwd) >= 2:
         context.user_data['password'] = passwd
         return tanya_hari(update, context)
     else:
-        update.message.reply_text("⛔️ Kata laluan minimum 3 huruf.")
+        update.message.reply_text("⛔️ Kata laluan minimum 2 huruf.")
         return MASUKKAN_PASSWORD
 
 def tanya_hari(update, context):

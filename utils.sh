@@ -19,6 +19,11 @@ BGRED="\033[1;41m"
 AQUA="\033[1;36m"
 NC="\033[0m"
 RESET="\033[0m"
+BGBLUE="\033[1;44m"    # Latar belakang biru
+WHITE="\033[1;37m"     # Teks putih
+BGBLACK="\033[1;40m"   # Latar belakang hitam
+YELLOW="\033[1;33m"    # Teks kuning
+GREEN="\033[1;32m"
 
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
@@ -39,13 +44,13 @@ SECTION_DIVIDER="${GRAY}----------------------------------------${NC}"
 title_banner() {
   clear
   echo -e "${FULL_BORDER}"
-  echo -e "${BGAQUA}                     SISTEM INFORMATION                      ${NC}"
+  echo -e "${BGBLUE}${WHITE}                     MAKLUMAT SISTEM                         ${NC}"
   echo -e "${FULL_BORDER}"
-  echo -e "${GREEN}ISP                  :${NC}  $ISP"
-  echo -e "${GREEN}Domain               :${NC}  $DOMAIN"
-  echo -e "${GREEN}IP Address           :${NC}  $IP"
-  echo -e "${GREEN}Location             :${NC}  $CITY"
-  echo -e "${GREEN}System Uptime        :${NC}  $UPTIME"
+  echo -e "${GREEN}ISP                  :${NC}  ${WHITE}$ISP${NC}"
+  echo -e "${GREEN}Domain               :${NC}  ${WHITE}$DOMAIN${NC}"
+  echo -e "${GREEN}IP Address           :${NC}  ${WHITE}$IP${NC}"
+  echo -e "${GREEN}Location             :${NC}  ${WHITE}$CITY${NC}"
+  echo -e "${GREEN}System Uptime        :${NC}  ${WHITE}$UPTIME${NC}"
   echo -e "${FULL_BORDER}"
   echo
 }
