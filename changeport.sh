@@ -25,7 +25,8 @@ get_current_ports() {
       # Ambil DROPBEAR_PORT
       local port1=$(grep -oP '(?<=^DROPBEAR_PORT=)[0-9]+' /etc/default/dropbear | xargs)
       # Ambil port dari DROPBEAR_EXTRA_ARGS menggunakan awk yang lebih robust
-      local port2=$(awk -F'-p ' '/^DROPBEAR_EXTRA_ARGS=/ {print $2}' /etc/default/dropbear | awk '{print $1}' | xargs)
+      # Tambahkan gsub untuk menghapus tanda kutip ganda
+      local port2=$(awk -F'-p ' '/^DROPBEAR_EXTRA_ARGS=/ {gsub(/"/, "", $2); print $2}' /etc/default/dropbear | awk '{print $1}' | xargs)
       echo "$port1 $port2"
       ;;
     "stunnel")
