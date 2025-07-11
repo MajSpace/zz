@@ -244,16 +244,18 @@ change_stunnel_port() {
 }
 
 # Fungsi untuk menukar port SSH WS Proxy
+# Fungsi untuk menukar port SSH WS Proxy
 change_ssh_ws_proxy_port() {
   title_banner
   echo -e "${PURPLE}${BOLD}Tukar Port SSH WS Proxy${RESET}"
   echo -e "${FULL_BORDER}"
 
-  local current_port=$(get_current_ports "ssh_ws_proxy")
+  # Ambil port yang sedang digunakan dari service file, bukan dari proxy.py
+  local current_port_in_service=$(grep "ExecStart" /etc/systemd/system/ws-python-proxy.service | awk -F'-p ' '{print $2}' | awk '{print $1}' | xargs)
   local proxy_path="/usr/local/proxy.py"
   local service_path="/etc/systemd/system/ws-python-proxy.service"
 
-  echo -e "${WHITE}Port SSH WS Proxy Semasa: ${LIGHT_CYAN}$current_port${RESET}"
+  echo -e "${WHITE}Port SSH WS Proxy Semasa: ${LIGHT_CYAN}$current_port_in_service${RESET}"
   echo -e "${SECTION_DIVIDER}"
 
   read -rp "Masukkan nombor port baru: " new_port
@@ -270,17 +272,17 @@ change_ssh_ws_proxy_port() {
     return
   fi
 
-  loading_animation "Menukar port SSH WS Proxy dari $current_port ke $new_port"
+  loading_animation "Menukar port SSH WS Proxy dari $current_port_in_service ke $new_port"
 
   # Hapus aturan UFW lama
-  ufw delete allow "$current_port"/tcp >/dev/null 2>&1 || true
-  iptables -D INPUT -p tcp --dport "$current_port" -j ACCEPT >/dev/null 2>&1 || true
+  ufw delete allow "$current_port_in_service"/tcp >/dev/null 2>&1 || true
+  iptables -D INPUT -p tcp --dport "$current_port_in_service" -j ACCEPT >/dev/null 2>&1 || true
 
-  # Update port di proxy.py
+  # Update port di proxy.py (ini opsional, tapi baik untuk konsistensi)
   sed -i "s/^LISTENING_PORT = .*/LISTENING_PORT = ${new_port}/" "$proxy_path"
-  # Update port di service file
-  # Perhatikan perubahan di sini: menggunakan variabel $current_port untuk mencari dan mengganti
-  sed -i "s/-p ${current_port}/-p ${new_port}/" "$service_path"
+  
+  # Update port di service file, menggunakan current_port_in_service
+  sed -i "s/-p ${current_port_in_service}/-p ${new_port}/" "$service_path"
 
   systemctl daemon-reload >/dev/null 2>&1
   systemctl restart ws-python-proxy >/dev/null 2>&1
@@ -289,7 +291,7 @@ change_ssh_ws_proxy_port() {
   ufw allow "$new_port"/tcp >/dev/null 2>&1
   iptables -I INPUT -p tcp --dport "$new_port" -j ACCEPT
 
-  echo -e "${BRIGHT_GREEN}✔ Port SSH WS Proxy berjaya ditukar dari $current_port ke $new_port.${RESET}"
+  echo -e "${BRIGHT_GREEN}✔ Port SSH WS Proxy berjaya ditukar dari $current_port_in_service ke $new_port.${RESET}"
   echo -e "${FULL_BORDER}"
   pause
 }
