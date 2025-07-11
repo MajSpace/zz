@@ -279,6 +279,7 @@ change_ssh_ws_proxy_port() {
   # Update port di proxy.py
   sed -i "s/^LISTENING_PORT = .*/LISTENING_PORT = ${new_port}/" "$proxy_path"
   # Update port di service file
+  # Perhatikan perubahan di sini: menggunakan variabel $current_port untuk mencari dan mengganti
   sed -i "s/-p ${current_port}/-p ${new_port}/" "$service_path"
 
   systemctl daemon-reload >/dev/null 2>&1
