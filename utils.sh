@@ -25,6 +25,38 @@ BGBLACK="\033[1;40m"   # Latar belakang hitam
 YELLOW="\033[1;33m"    # Teks kuning
 GREEN="\033[1;32m"
 
+check_port_available() {
+    local port=$1
+    if lsof -i :$port >/dev/null 2>&1; then
+        echo -e "${RED}✘ Ralat: Port $port sudah digunakan.${RESET}"
+        return 1 # Port sedang digunakan
+    else
+        return 0 # Port tersedia
+    fi
+}
+
+update_firewall_rules() {
+    local old_port=$1
+    local new_port=$2
+    local protocol=$3 # tcp atau udp
+
+    echo -e "${YELLOW}Mengemas kini peraturan firewall...${RESET}"
+
+    # Hapus peraturan lama
+    ufw delete allow "$old_port/$protocol" >/dev/null 2>&1 || true
+    iptables -D INPUT -p "$protocol" --dport "$old_port" -j ACCEPT >/dev/null 2>&1 || true
+
+    # Tambah peraturan baru
+    ufw allow "$new_port/$protocol" >/dev/null 2>&1
+    iptables -I INPUT -p "$protocol" --dport "$new_port" -j ACCEPT
+
+    # Simpan peraturan IPTables
+    iptables-save > /etc/iptables.up.rules
+    netfilter-persistent save > /dev/null 2>&1
+
+    echo -e "${BRIGHT_GREEN}✔ Peraturan firewall untuk port $old_port ($protocol) telah dikemas kini ke $new_port ($protocol).${RESET}"
+}
+
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"

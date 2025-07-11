@@ -35,10 +35,11 @@ main_menu() {
     echo -e " [${AQUA}03${NC}] ${WHITE}Pengurusan Xray VLESS${NC}        [${AQUA}09${NC}] ${WHITE}Maklumat Hysteria2${NC}"
     echo -e " [${AQUA}04${NC}] ${WHITE}Pengurusan Hysteria2${NC}         [${AQUA}10${NC}] ${WHITE}Maklumat SSH Proxy${NC}"
     echo -e " [${AQUA}05${NC}] ${WHITE}Pengurusan Backup${NC}            [${AQUA}11${NC}] ${WHITE}Restart Semua Servis${NC}"
-    echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}12${NC}] ${WHITE}Keluar${NC}"
+    echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}12${NC}] ${WHITE}Tukar Port Perkhidmatan${NC}"
+    echo -e " [${AQUA}13${NC}] ${WHITE}Keluar${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e ""
-    read -p "[###] Pilih Menu [01-12]: " num
+    read -p "[###] Pilih Menu [01-13]: " num
     echo -e ""
     case $num in
       1|01) menussh ;;
@@ -99,7 +100,8 @@ main_menu() {
         systemctl restart nginx xray ws-python-proxy openvpn@server-udp-1194 openvpn@server-tcp-443 openvpn@server-udp-53 openvpn@server-tcp-80 dropbear stunnel4 badvpn-udpgw hysteria2
         echo -e "${BRIGHT_GREEN}✔ Semua servis telah direstart.${NC}"
         sleep 2 ;;
-      12|x|X|exit|keluar) clear; echo "Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!"; exit 0 ;;
+      12) changeport ;;
+      13|x|X|exit|keluar) clear; echo "Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!"; exit 0 ;;
       *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih angka yang tersedia.${NC}" ; sleep 1 ;;
     esac
   done
