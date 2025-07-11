@@ -18,15 +18,14 @@ is_port_available() {
 }
 
 # Fungsi untuk mendapatkan port semasa
-# Fungsi untuk mendapatkan port semasa
 get_current_ports() {
   local service=$1
   case "$service" in
     "dropbear")
       # Ambil DROPBEAR_PORT
       local port1=$(grep -oP '(?<=^DROPBEAR_PORT=)[0-9]+' /etc/default/dropbear | xargs)
-      # Ambil port dari DROPBEAR_EXTRA_ARGS, pastikan hanya angka
-      local port2=$(grep -oP '(?<=DROPBEAR_EXTRA_ARGS=".*-p )[0-9]+' /etc/default/dropbear | xargs)
+      # Ambil port dari DROPBEAR_EXTRA_ARGS menggunakan awk yang lebih robust
+      local port2=$(awk -F'-p ' '/^DROPBEAR_EXTRA_ARGS=/ {print $2}' /etc/default/dropbear | awk '{print $1}' | xargs)
       echo "$port1 $port2"
       ;;
     "stunnel")
