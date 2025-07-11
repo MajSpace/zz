@@ -7,29 +7,35 @@ source /usr/local/bin/utils.sh
 BGAQUA="\033[1;46m"
 BGRED="\033[1;41m"
 AQUA="\033[1;36m"
+BGWHITE="\033[1;47m"
 NC="\033[0m"
+BGBLUE="\033[1;44m"    # Latar belakang biru
+WHITE="\033[1;37m"     # Teks putih
+BGBLACK="\033[1;40m"   # Latar belakang hitam
+YELLOW="\033[1;33m"    # Teks kuning
+GREEN="\033[1;32m"
 
 main_menu() {
   while true; do
     clear
     # Header Sistem Info
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BGAQUA}                     MAKLUMAT SISTEM                         ${NC}"
+    echo -e "${BGBLUE}${WHITE}                     MAKLUMAT SISTEM                         ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}ISP                  :${NC}  $ISP"
-    echo -e "${GREEN}Domain               :${NC}  $DOMAIN"
-    echo -e "${GREEN}IP Address           :${NC}  $IP"
-    echo -e "${GREEN}System Uptime        :${NC}  $UPTIME"
+    echo -e "${GREEN}ISP                  :${NC}  ${WHITE}$ISP${NC}"
+    echo -e "${GREEN}Domain               :${NC}  ${WHITE}$DOMAIN${NC}"
+    echo -e "${GREEN}IP Address           :${NC}  ${WHITE}$IP${NC}"
+    echo -e "${GREEN}System Uptime        :${NC}  ${WHITE}$UPTIME${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BGAQUA}                         MENU MANAGER                        ${NC}"
+    echo -e "${BGBLUE}${WHITE}                     MENU MANAGER                            ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e " [${AQUA}01${NC}] Pengurusan SSH & OpenVPN     [${AQUA}07${NC}] Semak Status Perkhidmatan"
-    echo -e " [${AQUA}02${NC}] Pengurusan Xray VMess        [${AQUA}08${NC}] Papar Port OpenVPN"
-    echo -e " [${AQUA}03${NC}] Pengurusan Xray VLESS        [${AQUA}09${NC}] Maklumat Hysteria2"
-    echo -e " [${AQUA}04${NC}] Pengurusan Hysteria2         [${AQUA}10${NC}] Maklumat SSH Proxy"
-    echo -e " [${AQUA}05${NC}] Pengurusan Backup            [${AQUA}11${NC}] Restart Semua Servis"
-    echo -e " [${AQUA}06${NC}] Pengurusan Bot Telegram      [${AQUA}12${NC}] Keluar"
+    echo -e " [${AQUA}01${NC}] ${WHITE}Pengurusan SSH & OpenVPN${NC}     [${AQUA}07${NC}] ${WHITE}Semak Status Perkhidmatan${NC}"
+    echo -e " [${AQUA}02${NC}] ${WHITE}Pengurusan Xray VMess${NC}        [${AQUA}08${NC}] ${WHITE}Papar Port OpenVPN${NC}"
+    echo -e " [${AQUA}03${NC}] ${WHITE}Pengurusan Xray VLESS${NC}        [${AQUA}09${NC}] ${WHITE}Maklumat Hysteria2${NC}"
+    echo -e " [${AQUA}04${NC}] ${WHITE}Pengurusan Hysteria2${NC}         [${AQUA}10${NC}] ${WHITE}Maklumat SSH Proxy${NC}"
+    echo -e " [${AQUA}05${NC}] ${WHITE}Pengurusan Backup${NC}            [${AQUA}11${NC}] ${WHITE}Restart Semua Servis${NC}"
+    echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}12${NC}] ${WHITE}Keluar${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e ""
     read -p "[###] Pilih Menu [01-12]: " num
