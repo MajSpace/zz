@@ -30,16 +30,17 @@ main_menu() {
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
     echo -e "${BGBLUE}${WHITE}                     MENU MANAGER                            ${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e " [${AQUA}01${NC}] ${WHITE}Pengurusan SSH & OpenVPN${NC}     [${AQUA}07${NC}] ${WHITE}Semak Status Perkhidmatan${NC}"
-    echo -e " [${AQUA}02${NC}] ${WHITE}Pengurusan Xray VMess${NC}        [${AQUA}08${NC}] ${WHITE}Papar Port OpenVPN${NC}"
-    echo -e " [${AQUA}03${NC}] ${WHITE}Pengurusan Xray VLESS${NC}        [${AQUA}09${NC}] ${WHITE}Maklumat Hysteria2${NC}"
-    echo -e " [${AQUA}04${NC}] ${WHITE}Pengurusan Hysteria2${NC}         [${AQUA}10${NC}] ${WHITE}Maklumat SSH Proxy${NC}"
-    echo -e " [${AQUA}05${NC}] ${WHITE}Pengurusan Backup${NC}            [${AQUA}11${NC}] ${WHITE}Restart Semua Servis${NC}"
-    echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}12${NC}] ${WHITE}Tukar Port Perkhidmatan${NC}"
-    echo -e " [${AQUA}13${NC}] ${WHITE}Keluar${NC}"
+    echo -e " [${AQUA}01${NC}] ${WHITE}Pengurusan SSH & OpenVPN${NC}     [${AQUA}08${NC}] ${WHITE}Papar Port OpenVPN${NC}"
+    echo -e " [${AQUA}02${NC}] ${WHITE}Pengurusan Xray VMess${NC}        [${AQUA}09${NC}] ${WHITE}Maklumat Hysteria2${NC}"
+    echo -e " [${AQUA}03${NC}] ${WHITE}Pengurusan Xray VLESS${NC}        [${AQUA}10${NC}] ${WHITE}Maklumat SSH Proxy${NC}"
+    echo -e " [${AQUA}04${NC}] ${WHITE}Pengurusan Hysteria2${NC}         [${AQUA}11${NC}] ${WHITE}Restart Semua Servis${NC}"
+    echo -e " [${AQUA}05${NC}] ${WHITE}Pengurusan Backup${NC}            [${AQUA}12${NC}] ${WHITE}Tukar Port Perkhidmatan${NC}"
+    echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}13${NC}] ${WHITE}Kemas Kini Script${NC}"
+    echo -e " [${AQUA}07${NC}] ${WHITE}Semak Status Perkhidmatan${NC}    [${AQUA}14${NC}] ${WHITE}Keluar${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GRAY}Versi Script: ${SCRIPT_VERSION}${NC}"
     echo -e ""
-    read -p "[###] Pilih Menu [01-13]: " num
+    read -p "[###] Pilih Menu [01-14]: " num
     echo -e ""
     case $num in
       1|01) menussh ;;
@@ -64,6 +65,9 @@ main_menu() {
           "openvpn@server-tcp-443:OpenVPN TCP 1443"
           "openvpn@server-udp-53:OpenVPN UDP 2053"
           "openvpn@server-tcp-80:OpenVPN TCP 8080"
+          "squid:Squid Proxy" # Tambahkan Squid
+          "ohp:OHP Server" # Tambahkan OHP
+          "ws-python-proxy:SSH WS Python Proxy" # Tambahkan SSH WS Python Proxy
         )
         for service_info in "${services[@]}"; do
           service_name="${service_info%%:*}"
@@ -101,7 +105,8 @@ main_menu() {
         echo -e "${BRIGHT_GREEN}✔ Semua servis telah direstart.${NC}"
         sleep 2 ;;
       12) changeport ;;
-      13|x|X|exit|keluar) clear; echo "Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!"; exit 0 ;;
+      14) update_script ;;
+      14|x|X|exit|keluar) clear; echo "Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!"; exit 0 ;;
       *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih angka yang tersedia.${NC}" ; sleep 1 ;;
     esac
   done

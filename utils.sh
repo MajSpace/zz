@@ -25,38 +25,6 @@ BGBLACK="\033[1;40m"   # Latar belakang hitam
 YELLOW="\033[1;33m"    # Teks kuning
 GREEN="\033[1;32m"
 
-check_port_available() {
-    local port=$1
-    if lsof -i :$port >/dev/null 2>&1; then
-        echo -e "${RED}✘ Ralat: Port $port sudah digunakan.${RESET}"
-        return 1 # Port sedang digunakan
-    else
-        return 0 # Port tersedia
-    fi
-}
-
-update_firewall_rules() {
-    local old_port=$1
-    local new_port=$2
-    local protocol=$3 # tcp atau udp
-
-    echo -e "${YELLOW}Mengemas kini peraturan firewall...${RESET}"
-
-    # Hapus peraturan lama
-    ufw delete allow "$old_port/$protocol" >/dev/null 2>&1 || true
-    iptables -D INPUT -p "$protocol" --dport "$old_port" -j ACCEPT >/dev/null 2>&1 || true
-
-    # Tambah peraturan baru
-    ufw allow "$new_port/$protocol" >/dev/null 2>&1
-    iptables -I INPUT -p "$protocol" --dport "$new_port" -j ACCEPT
-
-    # Simpan peraturan IPTables
-    iptables-save > /etc/iptables.up.rules
-    netfilter-persistent save > /dev/null 2>&1
-
-    echo -e "${BRIGHT_GREEN}✔ Peraturan firewall untuk port $old_port ($protocol) telah dikemas kini ke $new_port ($protocol).${RESET}"
-}
-
 # Laluan Konfigurasi
 XRAY_CONFIG="/usr/local/etc/xray/config.json"
 [[ ! -f "$XRAY_CONFIG" ]] && XRAY_CONFIG="/etc/xray/config.json"
@@ -66,6 +34,25 @@ IP=$(curl -s ipv4.icanhazip.com || hostname -I | awk '{print $1}')
 ISP=$(curl -s ipinfo.io/org 2>/dev/null || echo "Tidak Tersedia")
 CITY=$(curl -s ipinfo.io/city 2>/dev/null || echo "Tidak Tersedia")
 UPTIME=$(uptime -p 2>/dev/null || echo "Tidak Tersedia")
+
+# --- Tambahan untuk Update Script ---
+SCRIPT_VERSION="v1.0" # <--- versi script
+GITHUB_REPO_RAW="https://raw.githubusercontent.com/MajSpace/zz/refs/heads/main" # <--- Sesuaikan dengan repo Anda jika berbeda
+SCRIPT_FILES=(
+    "menu.sh"
+    "menussh.sh"
+    "menuvmess.sh"
+    "menuvless.sh"
+    "menuhysteria.sh"
+    "menubackup.sh"
+    "bot.py"
+    "changeport.sh"
+    "menubot.sh"
+    "autodel.sh"
+    "utils.sh" # Pastikan utils.sh juga diupdate
+    # Tambahkan file script lain yang perlu diupdate di sini
+)
+# --- Akhir Tambahan untuk Update Script ---
 
 # Sempadan Dekoratif
 FULL_BORDER="${YELLOW}═════════════════════════════════════════════════════════════${NC}"
@@ -194,4 +181,44 @@ show_hysteria_info() {
   echo -e "${YELLOW}  Bandwidth:         ${LIGHT_CYAN}Unlimited${RESET}"
   echo -e "${YELLOW}  Congestion Control:${LIGHT_CYAN}BBR${RESET}"
   echo -e "${SHORT_BORDER}"
+}
+
+# Fungsi untuk update script
+update_script() {
+    title_banner
+    echo -e "${PURPLE}${BOLD}Memulakan Proses Kemas Kini Script...${RESET}"
+    echo -e "${FULL_BORDER}"
+    echo -e "${YELLOW}Versi Semasa Script: ${LIGHT_CYAN}$SCRIPT_VERSION${RESET}"
+    echo -e "${SECTION_DIVIDER}"
+
+    echo -e "${WHITE}Memuat turun fail-fail script terbaru dari GitHub...${RESET}"
+    local update_success=true
+    for file in "${SCRIPT_FILES[@]}"; do
+        local local_path="/usr/local/bin/$file"
+        local github_url="$GITHUB_REPO_RAW/$file"
+        
+        echo -ne "${YELLOW}  -> Memuat turun $file... ${RESET}"
+        if wget -q -O "$local_path.tmp" "$github_url"; then
+            if mv "$local_path.tmp" "$local_path"; then
+                chmod +x "$local_path"
+                echo -e "${BRIGHT_GREEN}✔ Berjaya.${RESET}"
+            else
+                echo -e "${RED}✘ Gagal memindahkan fail.${RESET}"
+                update_success=false
+            fi
+        else
+            echo -e "${RED}✘ Gagal memuat turun.${RESET}"
+            update_success=false
+        fi
+    done
+
+    echo -e "${SECTION_DIVIDER}"
+    if $update_success; then
+        echo -e "${BRIGHT_GREEN}✔ Semua fail script berjaya dikemas kini!${RESET}"
+        echo -e "${YELLOW}Sila jalankan semula menu untuk melihat perubahan.${RESET}"
+    else
+        echo -e "${RED}✘ Terdapat ralat semasa kemas kini. Sila semak log di atas.${RESET}"
+    fi
+    echo -e "${FULL_BORDER}"
+    pause
 }

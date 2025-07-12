@@ -299,177 +299,6 @@ change_ssh_ws_proxy_port() {
   pause
 }
 
-# Fungsi untuk menukar port OpenVPN
-change_openvpn_port() {
-  title_banner
-  echo -e "${PURPLE}${BOLD}Tukar Port OpenVPN${RESET}"
-  echo -e "${FULL_BORDER}"
-
-  declare -A ovpn_configs
-  ovpn_configs["udp_1194"]="/etc/openvpn/server-udp-1194.conf"
-  ovpn_configs["tcp_1443"]="/etc/openvpn/server-tcp-443.conf" # Ini adalah file untuk port 1443
-  ovpn_configs["udp_2053"]="/etc/openvpn/server-udp-53.conf"
-  ovpn_configs["tcp_8080"]="/etc/openvpn/server-tcp-80.conf"
-
-  local current_ports=()
-  local config_keys=()
-  local i=1
-  for key in "${!ovpn_configs[@]}"; do
-    local current_port=$(get_current_ports "openvpn_$key")
-    echo -e "${YELLOW}  $i. ${key^^}: ${LIGHT_CYAN}$current_port${RESET}"
-    current_ports+=("$current_port")
-    config_keys+=("$key")
-    ((i++))
-  done
-  echo -e "${SECTION_DIVIDER}"
-
-  read -rp "Pilih nombor konfigurasi OpenVPN yang ingin ditukar (1-${#config_keys[@]}): " choice_idx
-  if ! [[ "$choice_idx" =~ ^[0-9]+$ ]] || (( choice_idx < 1 || choice_idx > ${#config_keys[@]} )); then
-    echo -e "${RED}✘ Pilihan tidak sah.${RESET}"
-    pause
-    return
-  fi
-
-  local selected_key="${config_keys[$((choice_idx-1))]}"
-  local old_port="${current_ports[$((choice_idx-1))]}"
-  local config_file="${ovpn_configs[$selected_key]}"
-  local proto=$(echo "$selected_key" | cut -d'_' -f1) # udp atau tcp
-  local service_name="openvpn@server-${selected_key//_/-}" # openvpn@server-udp-1194
-
-  read -rp "Masukkan nombor port baru untuk ${selected_key^^} (semasa: $old_port): " new_port
-
-  if ! [[ "$new_port" =~ ^[0-9]+$ ]] || (( new_port <= 0 || new_port > 65535 )); then
-    echo -e "${RED}✘ Ralat: Port tidak sah. Sila masukkan nombor antara 1 dan 65535.${RESET}"
-    pause
-    return
-  fi
-
-  if ! is_port_available "$new_port"; then
-    echo -e "${RED}✘ Ralat: Port $new_port sudah digunakan atau diizinkan di sistem. Sila pilih port lain.${RESET}"
-    pause
-    return
-  fi
-
-  loading_animation "Menukar port OpenVPN ${selected_key^^} dari $old_port ke $new_port"
-
-  # Hapus aturan UFW lama
-  ufw delete allow "$old_port"/"$proto" >/dev/null 2>&1 || true
-  iptables -D INPUT -p "$proto" --dport "$old_port" -j ACCEPT >/dev/null 2>&1 || true
-
-  # Update port di file konfigurasi OpenVPN
-  sed -i "s/^port ${old_port}/port ${new_port}/" "$config_file"
-
-  # --- Tambahan: Regenerasi file konfigurasi klien default ---
-  local OVPN_WEBDIR="/var/www/html"
-  local CA_CERT=$(cat /etc/openvpn/ca.crt 2>/dev/null)
-  local TA_KEY=$(cat /etc/openvpn/ta.key 2>/dev/null)
-
-  # Nama file default config yang baru
-  local new_default_config_name="client-default-${proto}-${new_port}.ovpn"
-  local old_default_config_name="client-default-${proto}-${old_port}.ovpn"
-
-  echo -e "${YELLOW}DEBUG: Regenerating default client config for ${selected_key//_/-} at $OVPN_WEBDIR/$new_default_config_name${RESET}"
-  echo -e "${YELLOW}DEBUG: Using new port: $new_port, Domain: $DOMAIN, Proto: $proto${RESET}"
-
-  cat > "$OVPN_WEBDIR/$new_default_config_name" <<-END
-client
-dev tun
-proto $proto
-remote $DOMAIN $new_port
-resolv-retry infinite
-nobind
-persist-key
-persist-tun
-auth-user-pass
-remote-cert-tls server
-cipher AES-256-GCM
-auth SHA256
-setenv CLIENT_CERT 0
-verb 3
-<ca>
-$CA_CERT
-</ca>
-<tls-auth>
-$TA_KEY
-</tls-auth>
-key-direction 1
-END
-  chmod 644 "$OVPN_WEBDIR/$new_default_config_name"
-  chown www-data:www-data "$OVPN_WEBDIR/$new_default_config_name"
-  echo -e "${BRIGHT_GREEN}✔ Default client config regenerated.${RESET}"
-
-  # Hapus file default config lama jika namanya berubah
-  if [[ "$old_default_config_name" != "$new_default_config_name" ]]; then
-    rm -f "$OVPN_WEBDIR/$old_default_config_name" 2>/dev/null
-    echo -e "${YELLOW}DEBUG: Removed old default config: $old_default_config_name${RESET}"
-  fi
-
-  # --- Tambahan: Regenerasi file konfigurasi klien untuk user yang ada ---
-  if [[ -f "/var/log/ovpn-users.log" ]]; then
-    echo -e "${YELLOW}DEBUG: Checking for existing OpenVPN users to regenerate configs...${RESET}"
-    while IFS="|" read -r user pass exp; do
-      username=$(echo "$user" | xargs)
-      # Nama file config user yang baru
-      local new_user_config_file="$OVPN_WEBDIR/client-${username}-${proto}-${new_port}.ovpn"
-      local old_user_config_file="$OVPN_WEBDIR/client-${username}-${proto}-${old_port}.ovpn"
-
-      # Hapus file config user lama jika ada dan namanya berubah
-      if [[ -f "$old_user_config_file" ]] && [[ "$old_user_config_file" != "$new_user_config_file" ]]; then
-        rm -f "$old_user_config_file" 2>/dev/null
-        echo -e "${YELLOW}DEBUG: Removed old user config: $old_user_config_file${RESET}"
-      fi
-
-      echo -e "${YELLOW}DEBUG: Regenerating config for user $username at $new_user_config_file${RESET}"
-      cat > "$new_user_config_file" <<-END
-client
-dev tun
-proto $proto
-remote $DOMAIN $new_port
-resolv-retry infinite
-nobind
-persist-key
-persist-tun
-auth-user-pass
-remote-cert-tls server
-cipher AES-256-GCM
-auth SHA256
-setenv CLIENT_CERT 0
-verb 3
-<ca>
-$CA_CERT
-</ca>
-<tls-auth>
-$TA_KEY
-</tls-auth>
-key-direction 1
-END
-      chmod 644 "$new_user_config_file"
-      chown www-data:www-data "$new_user_config_file"
-      echo -e "${BRIGHT_GREEN}✔ User config for $username regenerated.${RESET}"
-    done < /var/log/ovpn-users.log
-  else
-    echo -e "${YELLOW}DEBUG: /var/log/ovpn-users.log not found, skipping user config regeneration.${RESET}"
-  fi
-  # --- Akhir Tambahan Regenerasi ---
-
-  systemctl restart "$service_name" >/dev/null 2>&1
-
-  # Tambah aturan UFW baru
-  ufw allow "$new_port"/"$proto" >/dev/null 2>&1
-  iptables -I INPUT -p "$proto" --dport "$new_port" -j ACCEPT
-
-  # --- Tambahan: Reload UFW dan simpan iptables ---
-  ufw reload >/dev/null 2>&1
-  iptables-save > /etc/iptables.up.rules
-  netfilter-persistent save >/dev/null 2>&1
-  netfilter-persistent reload >/dev/null 2>&1
-  # --- Akhir Tambahan ---
-
-  echo -e "${BRIGHT_GREEN}✔ Port OpenVPN ${selected_key^^} berjaya ditukar dari $old_port ke $new_port.${RESET}"
-  echo -e "${FULL_BORDER}"
-  pause
-}
-
 # Fungsi untuk menukar port OHP
 change_ohp_port() {
   title_banner
@@ -527,8 +356,7 @@ changeport_menu() {
     echo -e "${YELLOW}  2. ${WHITE}Tukar Port Dropbear${RESET}"
     echo -e "${YELLOW}  3. ${WHITE}Tukar Port Stunnel (SSL/TLS)${RESET}"
     echo -e "${YELLOW}  4. ${WHITE}Tukar Port SSH WS Proxy${RESET}"
-    echo -e "${YELLOW}  5. ${WHITE}Tukar Port OpenVPN${RESET}"
-    echo -e "${YELLOW}  6. ${WHITE}Tukar Port OHP${RESET}"
+    echo -e "${YELLOW}  5. ${WHITE}Tukar Port OHP${RESET}"
     echo -e "${YELLOW}  0. ${WHITE}Kembali ke Menu Utama${RESET}"
     echo -e "${FULL_BORDER}"
     echo -ne "${WHITE}Pilih pilihan [0-6]: ${RESET}"
@@ -538,8 +366,7 @@ changeport_menu() {
       2) change_dropbear_port ;;
       3) change_stunnel_port ;;
       4) change_ssh_ws_proxy_port ;;
-      5) change_openvpn_port ;;
-      6) change_ohp_port ;;
+      5) change_ohp_port ;;
       0) return ;;
       *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih nombor antara 0 dan 6.${RESET}"; pause ;;
     esac
