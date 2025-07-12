@@ -45,10 +45,8 @@ SCRIPT_FILES=(
     "menuvless.sh"
     "menuhysteria.sh"
     "menubackup.sh"
-    "bot.py"
     "changeport.sh"
     "menubot.sh"
-    "autodel.sh"
     "utils.sh" # Pastikan utils.sh juga diupdate
     # Tambahkan file script lain yang perlu diupdate di sini
 )
