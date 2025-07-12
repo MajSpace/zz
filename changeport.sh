@@ -359,11 +359,88 @@ change_openvpn_port() {
   # Update port di file konfigurasi OpenVPN
   sed -i "s/^port ${old_port}/port ${new_port}/" "$config_file"
 
+  # --- Tambahan: Regenerasi file konfigurasi klien default ---
+  # Ini penting agar link download config default juga diperbarui
+  local OVPN_WEBDIR="/var/www/html"
+  local CA_CERT=$(cat /etc/openvpn/ca.crt 2>/dev/null)
+  local TA_KEY=$(cat /etc/openvpn/ta.key 2>/dev/null)
+
+  cat > "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn" <<-END
+client
+dev tun
+proto $proto
+remote $DOMAIN $new_port
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+auth-user-pass
+remote-cert-tls server
+cipher AES-256-GCM
+auth SHA256
+setenv CLIENT_CERT 0
+verb 3
+<ca>
+$CA_CERT
+</ca>
+<tls-auth>
+$TA_KEY
+</tls-auth>
+key-direction 1
+END
+  chmod 644 "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
+  chown www-data:www-data "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
+
+  # --- Tambahan: Regenerasi file konfigurasi klien untuk user yang ada ---
+  # Ini akan memastikan config user yang sudah ada juga diperbarui
+  # Kita perlu membaca log user dan membuat ulang config mereka
+  if [[ -f "/var/log/ovpn-users.log" ]]; then
+    while IFS="|" read -r user pass exp; do
+      username=$(echo "$user" | xargs)
+      # Hanya update config untuk user yang menggunakan protokol yang sama
+      if [[ -f "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn" ]]; then
+        cat > "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn" <<-END
+client
+dev tun
+proto $proto
+remote $DOMAIN $new_port
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+auth-user-pass
+remote-cert-tls server
+cipher AES-256-GCM
+auth SHA256
+setenv CLIENT_CERT 0
+verb 3
+<ca>
+$CA_CERT
+</ca>
+<tls-auth>
+$TA_KEY
+</tls-auth>
+key-direction 1
+END
+        chmod 644 "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
+        chown www-data:www-data "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
+      fi
+    done < /var/log/ovpn-users.log
+  fi
+  # --- Akhir Tambahan Regenerasi ---
+
   systemctl restart "$service_name" >/dev/null 2>&1
 
   # Tambah aturan UFW baru
   ufw allow "$new_port"/"$proto" >/dev/null 2>&1
   iptables -I INPUT -p "$proto" --dport "$new_port" -j ACCEPT
+
+  # --- Tambahan: Reload UFW dan simpan iptables ---
+  ufw reload >/dev/null 2>&1
+  iptables-save > /etc/iptables.up.rules
+  netfilter-persistent save >/dev/null 2>&1
+  netfilter-persistent reload >/dev/null 2>&1
+  # --- Akhir Tambahan ---
 
   echo -e "${BRIGHT_GREEN}✔ Port OpenVPN ${selected_key^^} berjaya ditukar dari $old_port ke $new_port.${RESET}"
   echo -e "${FULL_BORDER}"
