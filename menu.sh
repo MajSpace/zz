@@ -105,7 +105,7 @@ main_menu() {
         echo -e "${BRIGHT_GREEN}✔ Semua servis telah direstart.${NC}"
         sleep 2 ;;
       12) changeport ;;
-      14) update_script ;;
+      13) update_script ;;
       14|x|X|exit|keluar) clear; echo "Terima kasih kerana menggunakan Sistem Pengurusan VPN MAJ SPACE!"; exit 0 ;;
       *) echo -e "${RED}✘ Pilihan tidak sah. Sila pilih angka yang tersedia.${NC}" ; sleep 1 ;;
     esac
