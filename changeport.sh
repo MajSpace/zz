@@ -118,8 +118,10 @@ change_dropbear_port() {
   echo -e "${PURPLE}${BOLD}Tukar Port Dropbear${RESET}"
   echo -e "${FULL_BORDER}"
 
-  local current_port1=$(grep "DROPBEAR_PORT" /etc/default/dropbear | cut -d'=' -f2 | xargs)
-  local current_port2=$(grep "DROPBEAR_EXTRA_ARGS" /etc/default/dropbear | awk -F'-p ' '{print $2}' | awk '{print $1}' | xargs)
+  # Gunakan fungsi get_current_ports yang sudah diperbaiki
+  local db_ports_array=($(get_current_ports "dropbear"))
+  local current_port1="${db_ports_array[0]}"
+  local current_port2="${db_ports_array[1]}"
 
   echo -e "${WHITE}Port Dropbear Semasa:${RESET}"
   echo -e "${YELLOW}  1. Port Utama: ${LIGHT_CYAN}$current_port1${RESET}"
@@ -170,7 +172,8 @@ change_dropbear_port() {
   if [[ "$config_line" == "DROPBEAR_PORT" ]]; then
     sed -i "s/^DROPBEAR_PORT=.*/DROPBEAR_PORT=${new_port}/" /etc/default/dropbear
   elif [[ "$config_line" == "DROPBEAR_EXTRA_ARGS" ]]; then
-    sed -i "s/^DROPBEAR_EXTRA_ARGS=.*-p ${old_port}.*/DROPBEAR_EXTRA_ARGS=\"-p ${new_port}\"/" /etc/default/dropbear
+    # Pastikan sed juga menangani tanda kutip ganda dengan benar
+    sed -i "s/^DROPBEAR_EXTRA_ARGS=\".*-p ${old_port}.*\"/DROPBEAR_EXTRA_ARGS=\"-p ${new_port}\"/" /etc/default/dropbear
   fi
 
   systemctl restart dropbear >/dev/null 2>&1
