@@ -39,7 +39,7 @@ main_menu() {
     echo -e " [${AQUA}06${NC}] ${WHITE}Pengurusan Bot Telegram${NC}      [${AQUA}13${NC}] ${WHITE}Kemas Kini Script${NC}"
     echo -e " [${AQUA}07${NC}] ${WHITE}Semak Status Perkhidmatan${NC}    [${AQUA}14${NC}] ${WHITE}Keluar${NC}"
     echo -e "${YELLOW}═════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GRAY}Versi Script:${NC} ${RED}${SCRIPT_VERSION}${NC}"
+    echo -e "${WHITE}Versi Script:${NC} ${RED}${SCRIPT_VERSION}${NC}"
     echo -e ""
     read -p "[###] Pilih Menu [01-14]: " num
     echo -e ""
