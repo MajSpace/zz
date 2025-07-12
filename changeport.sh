@@ -302,12 +302,12 @@ change_ssh_ws_proxy_port() {
 # Fungsi untuk menukar port OpenVPN
 change_openvpn_port() {
   title_banner
-  echo -e "${PURPLE}${BOLD}Tukar Port OpenVPN${RESET}"
+  echo -e "${PURPLE}${BOLD}Tukar Port OpenVPNy${RESET}"
   echo -e "${FULL_BORDER}"
 
   declare -A ovpn_configs
   ovpn_configs["udp_1194"]="/etc/openvpn/server-udp-1194.conf"
-  ovpn_configs["tcp_1443"]="/etc/openvpn/server-tcp-443.conf"
+  ovpn_configs["tcp_1443"]="/etc/openvpn/server-tcp-443.conf" # Ini adalah file untuk port 1443
   ovpn_configs["udp_2053"]="/etc/openvpn/server-udp-53.conf"
   ovpn_configs["tcp_8080"]="/etc/openvpn/server-tcp-80.conf"
 
@@ -360,10 +360,12 @@ change_openvpn_port() {
   sed -i "s/^port ${old_port}/port ${new_port}/" "$config_file"
 
   # --- Tambahan: Regenerasi file konfigurasi klien default ---
-  # Ini penting agar link download config default juga diperbarui
   local OVPN_WEBDIR="/var/www/html"
   local CA_CERT=$(cat /etc/openvpn/ca.crt 2>/dev/null)
   local TA_KEY=$(cat /etc/openvpn/ta.key 2>/dev/null)
+
+  echo -e "${YELLOW}DEBUG: Regenerating default client config for ${selected_key//_/-} at $OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn${RESET}"
+  echo -e "${YELLOW}DEBUG: Using new port: $new_port, Domain: $DOMAIN, Proto: $proto${RESET}"
 
   cat > "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn" <<-END
 client
@@ -390,16 +392,17 @@ key-direction 1
 END
   chmod 644 "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
   chown www-data:www-data "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
+  echo -e "${BRIGHT_GREEN}✔ Default client config regenerated.${RESET}"
 
   # --- Tambahan: Regenerasi file konfigurasi klien untuk user yang ada ---
-  # Ini akan memastikan config user yang sudah ada juga diperbarui
-  # Kita perlu membaca log user dan membuat ulang config mereka
   if [[ -f "/var/log/ovpn-users.log" ]]; then
+    echo -e "${YELLOW}DEBUG: Checking for existing OpenVPN users to regenerate configs...${RESET}"
     while IFS="|" read -r user pass exp; do
       username=$(echo "$user" | xargs)
-      # Hanya update config untuk user yang menggunakan protokol yang sama
-      if [[ -f "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn" ]]; then
-        cat > "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn" <<-END
+      local user_config_file="$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
+      if [[ -f "$user_config_file" ]]; then
+        echo -e "${YELLOW}DEBUG: Regenerating config for user $username at $user_config_file${RESET}"
+        cat > "$user_config_file" <<-END
 client
 dev tun
 proto $proto
@@ -422,10 +425,13 @@ $TA_KEY
 </tls-auth>
 key-direction 1
 END
-        chmod 644 "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
-        chown www-data:www-data "$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
+        chmod 644 "$user_config_file"
+        chown www-data:www-data "$user_config_file"
+        echo -e "${BRIGHT_GREEN}✔ User config for $username regenerated.${RESET}"
       fi
     done < /var/log/ovpn-users.log
+  else
+    echo -e "${YELLOW}DEBUG: /var/log/ovpn-users.log not found, skipping user config regeneration.${RESET}"
   fi
   # --- Akhir Tambahan Regenerasi ---
 
