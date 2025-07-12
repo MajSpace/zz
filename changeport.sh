@@ -302,7 +302,7 @@ change_ssh_ws_proxy_port() {
 # Fungsi untuk menukar port OpenVPN
 change_openvpn_port() {
   title_banner
-  echo -e "${PURPLE}${BOLD}Tukar Port OpenVPNy${RESET}"
+  echo -e "${PURPLE}${BOLD}Tukar Port OpenVPN${RESET}"
   echo -e "${FULL_BORDER}"
 
   declare -A ovpn_configs
@@ -364,10 +364,14 @@ change_openvpn_port() {
   local CA_CERT=$(cat /etc/openvpn/ca.crt 2>/dev/null)
   local TA_KEY=$(cat /etc/openvpn/ta.key 2>/dev/null)
 
-  echo -e "${YELLOW}DEBUG: Regenerating default client config for ${selected_key//_/-} at $OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn${RESET}"
+  # Nama file default config yang baru
+  local new_default_config_name="client-default-${proto}-${new_port}.ovpn"
+  local old_default_config_name="client-default-${proto}-${old_port}.ovpn"
+
+  echo -e "${YELLOW}DEBUG: Regenerating default client config for ${selected_key//_/-} at $OVPN_WEBDIR/$new_default_config_name${RESET}"
   echo -e "${YELLOW}DEBUG: Using new port: $new_port, Domain: $DOMAIN, Proto: $proto${RESET}"
 
-  cat > "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn" <<-END
+  cat > "$OVPN_WEBDIR/$new_default_config_name" <<-END
 client
 dev tun
 proto $proto
@@ -390,19 +394,33 @@ $TA_KEY
 </tls-auth>
 key-direction 1
 END
-  chmod 644 "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
-  chown www-data:www-data "$OVPN_WEBDIR/client-default-${selected_key//_/-}.ovpn"
+  chmod 644 "$OVPN_WEBDIR/$new_default_config_name"
+  chown www-data:www-data "$OVPN_WEBDIR/$new_default_config_name"
   echo -e "${BRIGHT_GREEN}✔ Default client config regenerated.${RESET}"
+
+  # Hapus file default config lama jika namanya berubah
+  if [[ "$old_default_config_name" != "$new_default_config_name" ]]; then
+    rm -f "$OVPN_WEBDIR/$old_default_config_name" 2>/dev/null
+    echo -e "${YELLOW}DEBUG: Removed old default config: $old_default_config_name${RESET}"
+  fi
 
   # --- Tambahan: Regenerasi file konfigurasi klien untuk user yang ada ---
   if [[ -f "/var/log/ovpn-users.log" ]]; then
     echo -e "${YELLOW}DEBUG: Checking for existing OpenVPN users to regenerate configs...${RESET}"
     while IFS="|" read -r user pass exp; do
       username=$(echo "$user" | xargs)
-      local user_config_file="$OVPN_WEBDIR/client-${username}-${selected_key//_/-}.ovpn"
-      if [[ -f "$user_config_file" ]]; then
-        echo -e "${YELLOW}DEBUG: Regenerating config for user $username at $user_config_file${RESET}"
-        cat > "$user_config_file" <<-END
+      # Nama file config user yang baru
+      local new_user_config_file="$OVPN_WEBDIR/client-${username}-${proto}-${new_port}.ovpn"
+      local old_user_config_file="$OVPN_WEBDIR/client-${username}-${proto}-${old_port}.ovpn"
+
+      # Hapus file config user lama jika ada dan namanya berubah
+      if [[ -f "$old_user_config_file" ]] && [[ "$old_user_config_file" != "$new_user_config_file" ]]; then
+        rm -f "$old_user_config_file" 2>/dev/null
+        echo -e "${YELLOW}DEBUG: Removed old user config: $old_user_config_file${RESET}"
+      fi
+
+      echo -e "${YELLOW}DEBUG: Regenerating config for user $username at $new_user_config_file${RESET}"
+      cat > "$new_user_config_file" <<-END
 client
 dev tun
 proto $proto
@@ -425,10 +443,9 @@ $TA_KEY
 </tls-auth>
 key-direction 1
 END
-        chmod 644 "$user_config_file"
-        chown www-data:www-data "$user_config_file"
-        echo -e "${BRIGHT_GREEN}✔ User config for $username regenerated.${RESET}"
-      fi
+      chmod 644 "$new_user_config_file"
+      chown www-data:www-data "$new_user_config_file"
+      echo -e "${BRIGHT_GREEN}✔ User config for $username regenerated.${RESET}"
     done < /var/log/ovpn-users.log
   else
     echo -e "${YELLOW}DEBUG: /var/log/ovpn-users.log not found, skipping user config regeneration.${RESET}"
